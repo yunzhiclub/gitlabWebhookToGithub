@@ -11,32 +11,30 @@ import java.util.Map;
  */
 @Service
 public class GitLabNotifyServiceImpl implements GitLabNotifyService {
-  /**
-   * 用于缓存X-Gitlab-Token
-   */
-  private String secret;
 
   private Map<String, EventService> map = new HashMap<>();
-  ;
+
 
   public GitLabNotifyServiceImpl(PushEventService pushEventService,
-                                 IssueEventService issueEventService) {
+                                 IssueEventService issueEventService,
+                                 CommentEventService commentEventService) {
     this.addService(issueEventService);
     this.addService(pushEventService);
+    this.addService(commentEventService);
   }
 
   @Override
-  public void handleEventData(String json, String eventName, String secret) throws IOException {
-    //缓存secret
-    this.secret = secret;
+  public void handleEventData(String json, String eventName) throws IOException {
+
     EventService eventService = this.map.get(eventName);
-    eventService.handleEvent(json);
+
+    if(eventService != null) {
+      eventService.handleEvent(json);
+    } else {
+       System.out.println("未添加对应 "+ eventName + " service");
+    }
   }
 
-  @Override
-  public String getDingSecret() {
-    return secret;
-  }
 
   /**
    * 添加映射
