@@ -13,4 +13,5 @@ public class GithubIssue {
   Integer number;
   String state;
   String html_url;
+  GithubChanges changes;
 }

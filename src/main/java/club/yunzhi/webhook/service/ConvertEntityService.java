@@ -9,12 +9,22 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * 用于转换实体
  */
 @Service()
 @Slf4j
 public class ConvertEntityService {
+
+  /**
+   * 所改变的关键字(以github为基准)
+   */
+  enum ChangeKey {
+    title,
+    body
+  }
+
   @Value("${gitlabUrl}")
   private String gitlabUrl;
 
@@ -63,6 +73,27 @@ public class ConvertEntityService {
         }
     );
     return githubCommits;
+  }
+
+  GithubChanges getChangesFromGitlabToGithub(GitlabChanges gitlabChanges) {
+    GithubChanges githubChanges = new GithubChanges();
+    if (gitlabChanges != null) {
+      if (gitlabChanges.getTitle() != null) {
+        this.addChanges(ChangeKey.title, gitlabChanges, githubChanges);
+      }
+      if (gitlabChanges.getDescription() != null) {
+        this.addChanges(ChangeKey.body, gitlabChanges, githubChanges);
+      }
+    }
+    return githubChanges;
+  }
+
+  private void addChanges(ChangeKey changeKey, GitlabChanges gitlabChanges, GithubChanges githubChanges) {
+    if (changeKey.equals(ChangeKey.title)) {
+      githubChanges.setTitle(new GithubChanges.Title(gitlabChanges.getTitle().getPrevious()));
+    } else if (changeKey.equals(ChangeKey.body)) {
+      githubChanges.setBody(new GithubChanges.Body(gitlabChanges.getDescription().getPrevious()));
+    }
   }
 
 }

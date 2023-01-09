@@ -31,17 +31,27 @@ public class IssueEventService implements EventService {
   public void handleEvent(String json) throws IOException {
     GitlabIssueRequest gitlabIssueRequest = covertJson(json);
     GithubIssueRequest githubIssueRequest = new GithubIssueRequest();
-    if(gitlabIssueRequest.getObject_attributes().getAction().equals("close")) {
-      githubIssueRequest.setAction("closed");
-    } else if(gitlabIssueRequest.getObject_attributes().getAction().equals("open")) {
-      githubIssueRequest.setAction("opened");
-    } else {
-      System.out.println("action:"+gitlabIssueRequest.getObject_attributes().getAction()+"暂不支持");
+    switch (gitlabIssueRequest.getObject_attributes().getAction()) {
+      case "close":
+        githubIssueRequest.setAction("closed");
+        break;
+      case "open":
+        githubIssueRequest.setAction("opened");
+        break;
+      case "reopen":
+        githubIssueRequest.setAction("reopened");
+        break;
+      case "update":
+        System.out.println("检测到Issue.update事件，Github机器人不进行推送");
+        break;
+      default:
+        System.out.println("action:" + gitlabIssueRequest.getObject_attributes().getAction() + "暂不支持");
+        break;
     }
     githubIssueRequest.setIssue(convertEntityService.getIssueFromGitlabToGithub(gitlabIssueRequest.getObject_attributes()));
     githubIssueRequest.setRepository(convertEntityService.getRepositoryFromGitlabToGithub(gitlabIssueRequest.getRepository()));
     githubIssueRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername()));
-
+    githubIssueRequest.setChanges(convertEntityService.getChangesFromGitlabToGithub(gitlabIssueRequest.getChanges()));
     githubMessage.sendRequest(githubIssueRequest, GithubEvent.issues);
   }
 
