@@ -1,0 +1,2 @@
+# gitlabWebhookToGithub
+将gitlab的webhook转换为github格式
