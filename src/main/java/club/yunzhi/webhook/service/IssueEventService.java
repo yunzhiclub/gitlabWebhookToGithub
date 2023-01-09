@@ -1,0 +1,54 @@
+package club.yunzhi.webhook.service;
+import club.yunzhi.webhook.entities.GithubEvent;
+import club.yunzhi.webhook.request.GitLabPushRequest;
+import club.yunzhi.webhook.request.GithubIssueRequest;
+import club.yunzhi.webhook.request.GitlabIssueRequest;
+import club.yunzhi.webhook.util.JsonUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.io.IOException;
+
+@Service()
+@Slf4j
+public class IssueEventService implements EventService {
+
+  private final ConvertEntityService convertEntityService;
+  private final GithubMessage githubMessage;
+  public IssueEventService(ConvertEntityService convertEntityService,
+                           GithubMessage githubMessage) {
+    this.convertEntityService = convertEntityService;
+    this.githubMessage = githubMessage;
+  }
+
+  @Override
+  public String getEventKey() {
+    return "Issue Hook";
+  }
+
+
+  @Override
+  public void handleEvent(String json) throws IOException {
+    GitlabIssueRequest gitlabIssueRequest = covertJson(json);
+    GithubIssueRequest githubIssueRequest = new GithubIssueRequest();
+    if(gitlabIssueRequest.getObject_attributes().getAction().equals("close")) {
+      githubIssueRequest.setAction("closed");
+    } else if(gitlabIssueRequest.getObject_attributes().getAction().equals("open")) {
+      githubIssueRequest.setAction("opened");
+    } else {
+      System.out.println("action:"+gitlabIssueRequest.getObject_attributes().getAction()+"暂不支持");
+    }
+    githubIssueRequest.setIssue(convertEntityService.getIssueFromGitlabToGithub(gitlabIssueRequest.getObject_attributes()));
+    githubIssueRequest.setRepository(convertEntityService.getRepositoryFromGitlabToGithub(gitlabIssueRequest.getRepository()));
+    githubIssueRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername()));
+
+    githubMessage.sendRequest(githubIssueRequest, GithubEvent.issues);
+  }
+
+  /**
+   * 反序列化——把字节恢复为Java对象
+   */
+  private GitlabIssueRequest covertJson(String json) throws IOException {
+    return JsonUtil.deserializeFromJson(json, GitlabIssueRequest.class);
+  }
+}
