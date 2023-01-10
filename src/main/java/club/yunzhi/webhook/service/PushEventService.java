@@ -22,8 +22,8 @@ public class PushEventService implements EventService {
   }
 
   @Override
-  public void handleEvent(String json) throws IOException {
-    githubMessage.sendJsonMessage(json, GithubEvent.push);
+  public void handleEvent(String json, String access_token) throws IOException {
+    githubMessage.sendJsonMessage(json, GithubEvent.push, access_token);
   }
 
 }

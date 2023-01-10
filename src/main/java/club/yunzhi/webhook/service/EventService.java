@@ -18,7 +18,7 @@ public interface EventService {
    * @param json data
    * @throws IOException exception
    */
-  void handleEvent(String json) throws IOException;
+  void handleEvent(String json, String access_token) throws IOException;
 
   /**
    * 反序列化——把字节恢复为Java对象

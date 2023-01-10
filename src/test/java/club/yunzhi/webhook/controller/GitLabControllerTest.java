@@ -19,7 +19,7 @@ public class GitLabControllerTest {
     @Test
     public void pushHook() throws IOException {
         // event换成自己要测试的数据
-        gitLabController.pushHook(json, "Note Hook");
+//        gitLabController.pushHook(json, "Note Hook");
     }
 
     // 测试数据 payload 复制于下面

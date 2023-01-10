@@ -28,7 +28,7 @@ public class IssueEventService implements EventService {
 
 
   @Override
-  public void handleEvent(String json) throws IOException {
+  public void handleEvent(String json, String access_token) throws IOException {
     GitlabIssueRequest gitlabIssueRequest = covertJson(json);
     GithubIssueRequest githubIssueRequest = new GithubIssueRequest();
     switch (gitlabIssueRequest.getObject_attributes().getAction()) {
@@ -52,7 +52,7 @@ public class IssueEventService implements EventService {
     githubIssueRequest.setRepository(convertEntityService.getRepositoryFromGitlabToGithub(gitlabIssueRequest.getRepository()));
     githubIssueRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername()));
     githubIssueRequest.setChanges(convertEntityService.getChangesFromGitlabToGithub(gitlabIssueRequest.getChanges()));
-    githubMessage.sendRequest(githubIssueRequest, GithubEvent.issues);
+    githubMessage.sendRequest(githubIssueRequest, GithubEvent.issues, access_token);
   }
 
   /**
