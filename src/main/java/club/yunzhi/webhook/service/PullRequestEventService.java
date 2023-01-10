@@ -31,7 +31,7 @@ public class PullRequestEventService implements EventService {
   }
 
   @Override
-  public void handleEvent(String json) throws IOException {
+  public void handleEvent(String json, String access_token) throws IOException {
     boolean send = true;
     GitlabMergeRequestRequest gitlabMergeRequestRequest = EventService.covertJson(json, GitlabMergeRequestRequest.class);
     GithubPullRequestRequest githubPullRequestRequest = new GithubPullRequestRequest();
@@ -55,7 +55,7 @@ public class PullRequestEventService implements EventService {
     githubPullRequestRequest.setSender(convertEntityService.getSender(gitlabMergeRequestRequest.getUser().getUsername()));
     // gitlab中关闭PR中Action分为merge和close，但是github中只有close，如果只想推送后续的Push信息不推送Merge信息则只需要不接收merge Action即可
     if (send) {
-      githubMessage.sendRequest(githubPullRequestRequest, GithubEvent.pull_request);
+      githubMessage.sendRequest(githubPullRequestRequest, GithubEvent.pull_request,access_token);
     }
   }
 }
