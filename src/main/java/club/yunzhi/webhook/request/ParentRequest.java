@@ -34,7 +34,6 @@ public abstract class ParentRequest {
 
   }
 
-
   @Data
   public static class Commit{
     private String id;

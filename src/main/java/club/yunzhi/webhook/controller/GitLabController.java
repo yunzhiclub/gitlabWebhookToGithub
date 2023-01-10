@@ -22,9 +22,10 @@ public class GitLabController {
   @Autowired
   private GitLabNotifyService gitLabNotifyService;
 
+  // 不用自定义机器人 不需要secret字段
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseVo pushHook(@RequestBody String json, @RequestHeader(name = "X-Gitlab-Event") String event, @RequestHeader(name = "X-Gitlab-Token") String secret) throws IOException {
-    gitLabNotifyService.handleEventData(json,event,secret);
+  public ResponseVo pushHook(@RequestBody String json, @RequestHeader(name = "X-Gitlab-Event") String event) throws IOException {
+    gitLabNotifyService.handleEventData(json,event);
     return ResponseUtil.ok();
   }
 }

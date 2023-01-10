@@ -1,6 +1,7 @@
 package club.yunzhi.webhook.service;
 
 import club.yunzhi.webhook.entities.*;
+import club.yunzhi.webhook.request.GithubIssueCommentRequest;
 import club.yunzhi.webhook.request.ParentRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,12 @@ public class ConvertEntityService {
     githubIssue.setNumber(gitlabIssue.getIid());
     githubIssue.setState(gitlabIssue.getState());
     return githubIssue;
+  }
+
+  GithubIssueCommentRequest.Comment getCommentFromGitlabToGithub(GitlabComment gitlabComment) {
+    GithubIssueCommentRequest.Comment comment = new GithubIssueCommentRequest.Comment();
+    comment.setBody(gitlabComment.getNote());
+    return comment;
   }
 
   GithubRepository getRepositoryFromGitlabToGithub(GitlabRepository gitlabRepository) {
