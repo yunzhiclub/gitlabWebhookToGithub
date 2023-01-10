@@ -103,4 +103,14 @@ public class ConvertEntityService {
     }
   }
 
+  GitHubPullRequest getPullRequestFromMergeRequest(GitlabMergeRequest gitlabMergeRequest) {
+    GitHubPullRequest gitHubPullRequest = new GitHubPullRequest();
+    gitHubPullRequest.setBody(gitlabMergeRequest.getDescription());
+    gitHubPullRequest.setTitle(gitlabMergeRequest.getTitle());
+    gitHubPullRequest.setHtml_url(gitlabMergeRequest.getUrl());
+    gitHubPullRequest.setNumber(gitlabMergeRequest.getIid());
+    gitHubPullRequest.setState(gitlabMergeRequest.getState());
+    return gitHubPullRequest;
+  }
+
 }

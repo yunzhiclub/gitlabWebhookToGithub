@@ -17,10 +17,12 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
 
   public GitLabNotifyServiceImpl(PushEventService pushEventService,
                                  IssueEventService issueEventService,
-                                 CommentEventService commentEventService) {
+                                 CommentEventService commentEventService,
+                                 PullRequestEventService pullRequestEventService) {
     this.addService(issueEventService);
     this.addService(pushEventService);
     this.addService(commentEventService);
+    this.addService(pullRequestEventService);
   }
 
   @Override
