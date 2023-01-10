@@ -26,12 +26,12 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
   }
 
   @Override
-  public void handleEventData(String json, String eventName) throws IOException {
+  public void handleEventData(String json, String eventName,String access_token) throws IOException {
 
     EventService eventService = this.map.get(eventName);
 
     if(eventService != null) {
-      eventService.handleEvent(json);
+      eventService.handleEvent(json, access_token);
     } else {
        System.out.println("未添加对应 "+ eventName + " service");
     }

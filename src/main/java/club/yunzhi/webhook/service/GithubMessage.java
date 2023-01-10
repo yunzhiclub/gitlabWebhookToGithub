@@ -33,16 +33,16 @@ public class GithubMessage {
   /**
    * 从application.properties获取设置好的dingTalkUrl
    */
-  @Value("${githubDingTalkUrl}")
-  private String githubDingTalkUrl;
+  @Value("${dingTalkUrlPre}")
+  private String dingTalkUrlPre;
 
   public GithubMessage(HttpClientWrapper httpClientWrapper) {
     this.httpClientWrapper = httpClientWrapper;
   }
 
-  void sendRequest(Object githubRequest, GithubEvent githubEvent) {
+  void sendRequest(Object githubRequest, GithubEvent githubEvent, String access_token) {
     String jsObject = JsonUtil.serializeToJson(githubRequest, true);
-    DingResponse response = this.sendMessage(jsObject, githubEvent);
+    DingResponse response = this.sendMessage(jsObject, githubEvent, access_token);
     if (!SUCCESS_CODE.equals(response.getErrcode())) {
       throw new UnknownException("error");
     }
@@ -53,8 +53,8 @@ public class GithubMessage {
    * @param jsObject json对象
    * @param githubEvent githubEvent
    */
-  void sendJsonMessage(String jsObject, GithubEvent githubEvent){
-    DingResponse response = this.sendMessage(jsObject, githubEvent);
+  void sendJsonMessage(String jsObject, GithubEvent githubEvent, String access_token){
+    DingResponse response = this.sendMessage(jsObject, githubEvent, access_token);
     if (!SUCCESS_CODE.equals(response.getErrcode())) {
       throw new UnknownException("error");
     }
@@ -65,12 +65,14 @@ public class GithubMessage {
    *
    * @param jsObject js对象
    */
-  private DingResponse sendMessage(String jsObject, GithubEvent githubEvent) {
+  private DingResponse sendMessage(String jsObject, GithubEvent githubEvent, String access_token) {
     HttpClientResponse httpClientResponse;
     Map<String, String> map = new java.util.HashMap<>(Collections.singletonMap("Content-Type", "application/json"));
     map.put("Accept", "*/*");
     map.put("X-GitHub-Event", githubEvent.toString());
     try {
+      String githubDingTalkUrl = dingTalkUrlPre + "?access_token=" + access_token;
+
       httpClientResponse = httpClientWrapper.postReturnHttpResponse(map, githubDingTalkUrl, jsObject);
       return CommonHttpUtils.handleHttpResponse(httpClientResponse, new TypeReference<DingResponse<Void>>() {
       });

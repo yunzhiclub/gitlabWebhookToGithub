@@ -29,7 +29,7 @@ public class CommentEventService implements EventService {
     }
 
     @Override
-    public void handleEvent(String json) throws IOException {
+    public void handleEvent(String json, String access_token) throws IOException {
         GitLabCommentRequest gitLabCommentRequest = EventService.covertJson(json, GitLabCommentRequest.class);
         GithubIssueCommentRequest githubIssueCommentRequest = new GithubIssueCommentRequest();
 
@@ -48,6 +48,6 @@ public class CommentEventService implements EventService {
         githubIssueCommentRequest.setComment(convertEntityService.getCommentFromGitlabToGithub(gitLabCommentRequest.getObject_attributes()));
         githubIssueCommentRequest.setRepository(convertEntityService.getRepositoryFromGitlabToGithub(gitLabCommentRequest.getRepository()));
         githubIssueCommentRequest.setSender(convertEntityService.getSender(gitLabCommentRequest.getUser().getUsername()));
-        githubMessage.sendRequest(githubIssueCommentRequest, GithubEvent.issue_comment);
+        githubMessage.sendRequest(githubIssueCommentRequest, GithubEvent.issue_comment, access_token);
     }
 }
