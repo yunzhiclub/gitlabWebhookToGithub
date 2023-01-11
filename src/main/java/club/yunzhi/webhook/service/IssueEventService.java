@@ -5,6 +5,8 @@ import club.yunzhi.webhook.request.GithubIssueRequest;
 import club.yunzhi.webhook.request.GitlabIssueRequest;
 import club.yunzhi.webhook.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
@@ -12,6 +14,8 @@ import java.io.IOException;
 @Service()
 @Slf4j
 public class IssueEventService implements EventService {
+
+  private static final Logger logger = LoggerFactory.getLogger(PullRequestEventService.class);
 
   private final ConvertEntityService convertEntityService;
   private final GithubMessage githubMessage;
@@ -42,10 +46,10 @@ public class IssueEventService implements EventService {
         githubIssueRequest.setAction("reopened");
         break;
       case "update":
-        System.out.println("检测到Issue.update事件，Github机器人不进行推送");
+        logger.info("检测到Issue.update事件，Github机器人不进行推送");
         break;
       default:
-        System.out.println("action:" + gitlabIssueRequest.getObject_attributes().getAction() + "暂不支持");
+        logger.info("action:" + gitlabIssueRequest.getObject_attributes().getAction() + "暂不支持");
         break;
     }
     githubIssueRequest.setIssue(convertEntityService.getIssueFromGitlabToGithub(gitlabIssueRequest.getObject_attributes()));

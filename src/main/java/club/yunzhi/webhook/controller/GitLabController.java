@@ -27,7 +27,6 @@ public class GitLabController {
   public ResponseVo pushHook(@RequestBody String json,
                              @RequestHeader(name = "X-Gitlab-Event") String event,
                              @RequestParam String access_token) throws IOException {
-    System.out.println(access_token);
     gitLabNotifyService.handleEventData(json,event, access_token);
     return ResponseUtil.ok();
   }
