@@ -1,5 +1,7 @@
 package club.yunzhi.webhook.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,15 +16,21 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
 
   private Map<String, EventService> map = new HashMap<>();
 
+  private static final Logger logger = LoggerFactory.getLogger(GitLabNotifyServiceImpl.class);
+
+  private final CombineEventService combineEventService;
+
 
   public GitLabNotifyServiceImpl(PushEventService pushEventService,
                                  IssueEventService issueEventService,
                                  CommentEventService commentEventService,
-                                 PullRequestEventService pullRequestEventService) {
+                                 PullRequestEventService pullRequestEventService,
+                                 CombineEventService combineEventService) {
     this.addService(issueEventService);
     this.addService(pushEventService);
     this.addService(commentEventService);
     this.addService(pullRequestEventService);
+    this.combineEventService = combineEventService;
   }
 
   @Override
@@ -30,11 +38,18 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
 
     EventService eventService = this.map.get(eventName);
 
-    if(eventService != null) {
-      eventService.handleEvent(json, access_token);
-    } else {
-       System.out.println("未添加对应 "+ eventName + " service");
+    if(eventService == null) {
+      logger.info("未添加对应 " + eventName + " service");
+      return;
     }
+    // 判断事件合并进行处理，不进行处理则返回原json值
+    String handleJson = combineEventService.handleEvent(json, eventName, access_token);
+
+    if(handleJson == null) {
+      logger.info("事件合并，不发送该事件");
+      return;
+    }
+      eventService.handleEvent(handleJson, access_token);
   }
 
 

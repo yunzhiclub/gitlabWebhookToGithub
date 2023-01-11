@@ -8,6 +8,8 @@ import club.yunzhi.webhook.request.GithubIssueRequest;
 import club.yunzhi.webhook.request.GithubPullRequestRequest;
 import club.yunzhi.webhook.request.GitlabMergeRequestRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,9 @@ import java.io.IOException;
 @Service()
 @Slf4j
 public class PullRequestEventService implements EventService {
+
+  private static final Logger logger = LoggerFactory.getLogger(PullRequestEventService.class);
+
   private final ConvertEntityService convertEntityService;
   private final GithubMessage githubMessage;
 
@@ -35,6 +40,11 @@ public class PullRequestEventService implements EventService {
     boolean send = true;
     GitlabMergeRequestRequest gitlabMergeRequestRequest = EventService.covertJson(json, GitlabMergeRequestRequest.class);
     GithubPullRequestRequest githubPullRequestRequest = new GithubPullRequestRequest();
+    // action为null 不发送
+    if (gitlabMergeRequestRequest.getObject_attributes().getAction() == null) {
+      logger.info("action为null,不发送");
+      return;
+    }
     switch (gitlabMergeRequestRequest.getObject_attributes().getAction()) {
       case "close":
         githubPullRequestRequest.setAction("closed");
@@ -47,7 +57,7 @@ public class PullRequestEventService implements EventService {
         break;
       default:
         send = false;
-        System.out.println("action:" + gitlabMergeRequestRequest.getObject_attributes().getAction() + "暂不支持");
+        logger.info("action:" + gitlabMergeRequestRequest.getObject_attributes().getAction() + "暂不支持");
         break;
     }
     githubPullRequestRequest.setPull_request(convertEntityService.getPullRequestFromMergeRequest(gitlabMergeRequestRequest.getObject_attributes()));
