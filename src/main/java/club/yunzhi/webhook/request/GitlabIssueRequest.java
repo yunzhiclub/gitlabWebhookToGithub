@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 public class GitlabIssueRequest extends ParentRequest{
   private GitlabIssue object_attributes;
   private User user;
-  private GitlabChanges changes;
+  public GitlabChanges changes;
 }

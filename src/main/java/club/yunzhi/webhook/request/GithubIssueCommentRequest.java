@@ -25,6 +25,8 @@ public class GithubIssueCommentRequest {
     Comment comment;
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Comment {
         String body;
     }
