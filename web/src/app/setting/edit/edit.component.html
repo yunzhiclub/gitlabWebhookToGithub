@@ -1,0 +1,27 @@
+<div class="mt-2">
+  <button [thyButton]="'outline-default'" [thySize]="'xs'" (click)="backWard()">
+    <thy-icon thyIconName="angle-left"></thy-icon>
+    返回
+  </button>
+</div>
+<form *ngIf="init" (ngSubmit)="onSubmit(formGroup)" [formGroup]="formGroup" name="demoForm"
+      class="px-md-5 p-3  mt-6 mb-2 col-8">
+  <thy-form-group thyLabelText="GitlabUrl" thyLabelRequired>
+    <input [formControlName]="formKeys.gitlabUrl" thyInput name="name" required
+           placeholder="请输入GitlabUrl,如:http://gitlab.mengyunzhi.com:2448"/>
+  </thy-form-group>
+  <thy-form-group thyLabelText="GithubToken" thyLabelRequired>
+    <input [formControlName]="formKeys.token" thyInput name="name" required
+           placeholder="请输入GithubToken"/>
+  </thy-form-group>
+  <thy-form-group thyLabelText="Secret" thyLabelRequired>
+    <input [formControlName]="formKeys.secret" thyInput name="name" required
+           placeholder="请输入Secret"/>
+  </thy-form-group>
+
+  <thy-form-group-footer>
+    <button [thyButton]="'primary'" thyLoadingText="" class="ml-4" type="submit" [disabled]="formGroup.invalid">
+      提交
+    </button>
+  </thy-form-group-footer>
+</form>
