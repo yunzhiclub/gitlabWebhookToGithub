@@ -1,0 +1,81 @@
+<thy-layout style="height: 100vh">
+  <thy-header thySize="sm" style="background-color:#292960">
+    <ng-template #headerTitle></ng-template>
+    <ng-template #headerContent>
+      <thy-nav thyType="thirdly" thyHorizontal="start">
+        <a class="font-size-lg text-white">
+          <thy-icon thyIconName="external-user">
+          </thy-icon>
+          GitlabWebhookToGithub</a>
+      </thy-nav>
+    </ng-template>
+  </thy-header>
+  <thy-content>
+
+    <div *ngIf="component === 'index'" >
+      <thy-content-section>
+        <div class="mt-6 bg-bright">
+          <div>
+            <button class="ml-4" thyButton="success" (click)="component = 'add'">
+              <thy-icon thyIconName="plus"></thy-icon>
+              新建项目配置
+            </button>
+          </div>
+
+        </div>
+      </thy-content-section>
+      <div class="mt-2 d-flex justify-content-between" >
+        <table class="table table-striped mt-8 ">
+          <thead>
+          <tr class="table-primary flex-row-reverse">
+            <th>GitlabUrl</th>
+            <th>GithubToken</th>
+            <th>Secret</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <thy-empty *ngIf="pageData.content?.length === 0" thyMessage="数据为空, 请添加" [thyTopAuto]="true" class="empty-container bg-content"></thy-empty>
+
+          <tr *ngFor="let setting of pageData.content ; index as i" height="100px">
+            <td>{{setting.gitlabUrl}}</td>
+            <td>{{setting.token}}</td>
+            <td>{{setting.secret}}</td>
+
+
+            <td>
+              <button thyButton="primary" class="mr-2 " [thySize]="'sm'" (click)="onEdit(setting.id)">
+                <thy-icon thyIconName="edit"></thy-icon>
+                编辑
+              </button>
+              <button thyButton="danger" class="mr-2 " [thySize]="'sm'"
+                      (click)="onDelete(setting)">
+                <thy-icon thyIconName="trash"></thy-icon>
+                删除
+              </button>
+            </td>
+          </tr>
+        </table>
+
+      </div>
+      <thy-pagination
+        *ngIf="pageData.content?.length !== 0"
+                      [(thyPageIndex)]="pageData.number"
+                      [thyPageSize]="pageData.size"
+                      [thyTotal]="pageData.totalElements"
+                      [thyShowQuickJumper]="false"
+                      [thyShowSizeChanger]="true"
+                      [thyPageSizeOptions]="[5, 10]"
+                      (thyPageSizeChanged)="onSizeChange($event)"
+                      (thyPageIndexChange)="onPageChange($event)"
+      ></thy-pagination>
+    </div>
+    <app-add *ngIf="component === 'add'" (isFinish)="onAddFinish($event)"></app-add>
+    <app-edit *ngIf="component === 'edit'" (isFinish)="onEditFinish($event)" [settingID]="editSettingId"></app-edit>
+
+
+  </thy-content>
+
+</thy-layout>
+
+
