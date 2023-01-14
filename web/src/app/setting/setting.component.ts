@@ -117,59 +117,7 @@ export class SettingComponent implements OnInit {
   ngOnInit(): void {
     this.errorInfo = '';
     this.query({page: 1, size: 5});
-    // 有变化时重置错误信息
-    // this.loginForm.valueChanges
-    //   .subscribe(() => {
-    //     this.errorInfo = '';
-    //   });
   }
-
-  // ngAfterViewInit() {
-  //   fromEvent(window, 'resize')
-  //     .subscribe((event) => {
-  //       //网页可见区域宽：
-  //       const width = document.documentElement.clientWidth;
-  //       //网页可见区域高：
-  //       const height = document.documentElement.clientHeight;
-  //       // 本元素高度
-  //       let parentHeight = this.loginDiv.nativeElement.clientHeight + 100;
-  //       // 父元素宽度
-  //       let parentWidth = this.loginDiv.nativeElement.offsetParent.clientWidth;
-  //
-  //       this.left = (width - parentWidth)/7 + "px";
-  //       this.top = (height - parentHeight)/2 + "px";
-  //     });
-  // }
-
-  // login() {
-  //   const setting = {
-  //     username: this.loginForm.get(this.key.username)!.value as string,
-  //     password: this.loginForm.get(this.key.password)!.value as string,
-  //   };
-  //   this.userService.login(setting)
-  //     .subscribe({
-  //       next: (user) => {
-  //         this.userService.initCurrentLoginUser(() => {
-  //           this.notifyService.success('登录成功!');
-  //           if (user.identity == ROLE_TYPE.systemAdmin.value) {
-  //             this.router.navigateByUrl('serviceArea').then();
-  //           } else {
-  //             this.router.navigateByUrl('divisionalWorks/process').then();
-  //           }
-  //         }).subscribe();
-  //       },
-  //         error: () => {
-  //           this.errorInfo = '登录失败，请检查您填写的信息是否正确';
-  //         }
-  //       }
-  //     )
-  // }
-
-  // info() {
-  //   const html =  '<p>开发人员: 韦卫毅、李明傲、陈世航、何攀、张瑞</p>' +
-  //     '<p >联系我们(13920618851微信同号)</p> ' ;
-  //   this.commonService.info(() => {}, html, '技术支持')
-  // }
 
   onDelete(setting: Setting) {
     this.dialog.confirm({
