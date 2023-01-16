@@ -27,7 +27,7 @@ public class GitLabController {
                                @RequestHeader(name = "X-Gitlab-Event") String event,
                                @RequestHeader(name = "X-Gitlab-Token") String secret) {
         // 异步处理 直接向gitlab返回ok
-        notifySchedule.putIntoQueue(json, event, secret);
+        notifySchedule.putIntoMap(json, event, secret);
         return ResponseUtil.ok();
     }
 }

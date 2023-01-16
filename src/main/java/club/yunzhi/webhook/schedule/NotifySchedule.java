@@ -26,6 +26,13 @@ public class NotifySchedule {
 
     // 当最后一次请求在当前时间2s内时, 不进行处理
     private final Integer NOT_HANDLE_TIME = 2000;
+
+    /**
+     * key： access_token, github钉钉机器人的token
+     * value 该项目待处理的GitlabRequest请求
+     */
+    private final Map<String, Queue<GitlabRequest>> map = new ConcurrentHashMap<>();
+
     /**
      * 处理队列
      */
@@ -36,23 +43,38 @@ public class NotifySchedule {
 
     private final GitLabNotifyService gitLabNotifyService;
 
+    private final SettingService settingService;
+
 
     public NotifySchedule(CombineEventService combineEventService,
-                          GitLabNotifyService gitLabNotifyService) {
+                          GitLabNotifyService gitLabNotifyService,
+                          SettingService settingService) {
         this.combineEventService = combineEventService;
         this.gitLabNotifyService = gitLabNotifyService;
+        this.settingService = settingService;
     }
 
 
     @Scheduled(fixedRate = INTERVAL)
     private void sendRequest() throws IOException {
-        int size = this.queue.size();
+        // 对每个项目的请求进行处理
+        this.map.forEach((key, value) -> {
+
+        });
+    }
+
+    /**
+     * 处理队列中的请求
+     * @param queue 请求队列
+     */
+    public void handleQueue(Queue<GitlabRequest> queue) throws IOException {
+        int size = queue.size();
         // 如果队列没数据,表示这段时间没有请求,直接返回
         if (size == 0) {
             return;
         }
-        Iterator<GitlabRequest> iterator = this.queue.iterator();
-        // 将处理队列请求
+        Iterator<GitlabRequest> iterator = queue.iterator();
+
         while (iterator.hasNext()) {
             // 获取头部元素
             GitlabRequest gitlabRequest = iterator.next();
@@ -74,14 +96,25 @@ public class NotifySchedule {
     }
 
 
+
     /**
      * 将请求添加到hashMap中进行处理
      */
     @Async
-    public void putIntoQueue(String json, String eventName, String secret) {
+    public void putIntoMap(String json, String eventName, String secret) {
         Assert.notNull(json, "json不能为空");
         Assert.notNull(eventName, "eventName不能为空");
         Assert.notNull(secret, "secret不能为空");
+
+        String accessToken = EventService.getAccessToken(secret, settingService);
+
+        // 找到对应项目的请求队列
+        Queue<GitlabRequest> toAddQueue = this.map.get(accessToken);
+        // 若该项目的请求队列不存在，新增队列
+        if (toAddQueue == null) {
+            toAddQueue = new LinkedBlockingQueue<>();
+            this.map.put(accessToken, queue);
+        }
 
         GitlabRequest gitlabRequest = new GitlabRequest();
         gitlabRequest.setJson(json);
@@ -89,7 +122,7 @@ public class NotifySchedule {
         gitlabRequest.setSecret(secret);
         gitlabRequest.setReceivedTime(new Timestamp(System.currentTimeMillis()));
         // 添加进队列
-        this.queue.offer(gitlabRequest);
+        toAddQueue.offer(gitlabRequest);
     }
 
     /**

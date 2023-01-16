@@ -28,7 +28,7 @@ public interface EventService {
     return JsonUtil.deserializeFromJson(json, clazz);
   }
 
-  static String getAccessToken(String secret, SettingService settingService) throws IOException {
+  static String getAccessToken(String secret, SettingService settingService){
     return settingService.getSettingBySecret(secret).getToken();
   }
 }
