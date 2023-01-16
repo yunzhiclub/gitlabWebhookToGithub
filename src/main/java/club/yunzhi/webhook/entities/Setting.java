@@ -24,4 +24,7 @@ public class Setting {
 
   @Column(nullable = false, unique = true)
   private String secret = "";
+
+  @Column(nullable = false)
+  private String name;
 }

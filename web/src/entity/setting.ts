@@ -3,4 +3,5 @@ export interface Setting {
   token: string;
   secret: string;
   gitlabUrl: string;
+  name: string;
 }
