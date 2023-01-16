@@ -43,6 +43,7 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
       return;
     }
       eventService.handleEvent(json, secret);
+
   }
 
 

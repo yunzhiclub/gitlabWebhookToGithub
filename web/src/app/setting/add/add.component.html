@@ -18,6 +18,12 @@
   <thy-form-group thyLabelText="Secret" thyLabelRequired>
     <input [formControlName]="formKeys.secret" thyInput name="name" required
            placeholder="请输入Secret"/>
+    <small class="text-danger"
+           *ngIf="formGroup.get(this.formKeys.secret)!.touched && formGroup.get(this.formKeys.secret)!.invalid">
+        <span *ngIf="formGroup.get(this.formKeys.secret)?.errors?.secretExist">
+                      该Secret已存在，请重新输入！
+        </span>
+    </small>
   </thy-form-group>
 
   <thy-form-group-footer>

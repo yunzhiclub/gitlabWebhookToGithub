@@ -16,6 +16,7 @@ public interface EventService {
 
   /**
    * 处理事件
+   *
    * @param json data
    * @throws IOException exception
    */
@@ -28,7 +29,12 @@ public interface EventService {
     return JsonUtil.deserializeFromJson(json, clazz);
   }
 
-  static String getAccessToken(String secret, SettingService settingService){
-    return settingService.getSettingBySecret(secret).getToken();
+
+  static String getAccessToken(String secret, SettingService settingService) {
+    if (settingService.getSettingBySecret(secret) == null) {
+      return "";
+    } else {
+      return settingService.getSettingBySecret(secret).getToken();
+    }
   }
 }

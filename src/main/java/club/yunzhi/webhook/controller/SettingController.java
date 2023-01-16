@@ -20,6 +20,11 @@ public class SettingController {
     this.settingService = settingService;
   }
 
+  @GetMapping("existBySecret")
+  public boolean existByUsername(@RequestParam String secret) {
+    return this.settingService.existBySetting(secret);
+  }
+
   @GetMapping("page")
   public Page<Setting> page(
       @SortDefault.SortDefaults(@SortDefault(sort = "id", direction = Sort.Direction.DESC)) Pageable pageable

@@ -3,7 +3,8 @@ package club.yunzhi.webhook.service;
 import club.yunzhi.webhook.entities.Sender;
 import club.yunzhi.webhook.entities.Setting;
 import club.yunzhi.webhook.repository.SettingRepository;
-import club.yunzhi.webhook.service.specs.SettingSpecs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,11 +19,13 @@ import java.util.List;
 @Service
 public class SettingServiceImpl implements SettingService {
   private final SettingRepository settingRepository;
+  private static final Logger logger = LoggerFactory.getLogger(SettingServiceImpl.class);
 
   @Autowired
   public SettingServiceImpl(SettingRepository settingRepository) {
     this.settingRepository = settingRepository;
   }
+
   @Override
   public Setting save(Setting setting) {
     Assert.notNull(setting.getGitlabUrl(), "GitlabUrl不能为空");
@@ -67,15 +70,17 @@ public class SettingServiceImpl implements SettingService {
 
   @Override
   public Setting getSettingBySecret(String secret) {
-      List<Setting> settings = this.settingRepository.getSettingBySecret(secret);
-      if (settings.isEmpty()){
-        System.out.println("此Secret无对应Setting");
-      } else if(settings.size() > 1) {
-        System.out.println("此Secret找到了多个Setting");
-      } else {
-        return settings.get(0);
-      }
+    if (this.settingRepository.findBySecret(secret).isPresent()) {
+      return this.settingRepository.findBySecret(secret).get();
+    } else {
+      logger.debug("未找到Secret:" + secret + "对应Setting");
       return null;
+    }
+  }
+
+  @Override
+  public boolean existBySetting(String secret) {
+    return this.settingRepository.findBySecret(secret).isPresent();
   }
 
 
