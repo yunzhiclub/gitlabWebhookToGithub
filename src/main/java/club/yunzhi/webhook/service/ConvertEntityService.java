@@ -5,6 +5,8 @@ import club.yunzhi.webhook.repository.SettingRepository;
 import club.yunzhi.webhook.request.GithubIssueCommentRequest;
 import club.yunzhi.webhook.request.ParentRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,12 +21,13 @@ import java.util.List;
 @Service()
 @Slf4j
 public class ConvertEntityService {
+  private static final Logger logger = LoggerFactory.getLogger(ConvertEntityService.class);
 
-  private final
-  SettingRepository settingRepository;
 
-  public ConvertEntityService(SettingRepository settingRepository) {
-    this.settingRepository = settingRepository;
+  private final SettingService settingService;
+
+  public ConvertEntityService(SettingService settingService) {
+    this.settingService = settingService;
   }
 
   /**
@@ -64,13 +67,12 @@ public class ConvertEntityService {
   Sender getSender(String userName, String secret) {
     Sender sender = new Sender();
     sender.setLogin(userName);
-    List<Setting> settings = this.settingRepository.getSettingBySecret(secret);
-    if (settings.isEmpty()){
-      System.out.println("此Secret无对应Setting");
-    } else if(settings.size() > 1) {
-      System.out.println("此Secret找到了多个Setting");
+    Setting setting = this.settingService.getSettingBySecret(secret);
+
+    if (setting == null) {
+      logger.debug("未找到Secret:" + secret + "对应Setting");
     } else {
-      sender.setHtml_url(settings.get(0).getGitlabUrl() + "/" + userName);
+      sender.setHtml_url(this.settingService.getSettingBySecret(secret).getGitlabUrl() + "/" + userName);
     }
     return sender;
   }

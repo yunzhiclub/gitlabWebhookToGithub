@@ -17,6 +17,8 @@ export class EditComponent implements OnInit {
   settingID!: number
   @Output()
   isFinish = new EventEmitter<Setting | null>();
+
+  setting = {} as Setting
   init= false;
   constructor(private settingService: SettingService,
               private notifyService: ThyNotifyService) { }
@@ -26,7 +28,7 @@ export class EditComponent implements OnInit {
     this.settingService.getById(this.settingID)
       .subscribe(
         (setting) => {
-          console.log(setting)
+          this.setting = setting;
           this.setFormGroup(setting)
         }
       )

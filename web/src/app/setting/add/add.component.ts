@@ -2,6 +2,7 @@ import { Component, OnInit, Output ,EventEmitter} from '@angular/core';
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Setting } from "../../../entity/setting";
 import {SettingService} from "../../../service/SettingService";
+import { CommonValidators } from "../../validator/CommonValidators";
 
 @Component({
   selector: 'app-add',
@@ -19,12 +20,13 @@ export class AddComponent implements OnInit {
   isFinish = new EventEmitter<Setting | null>();
 
 
-  constructor(private settingService: SettingService) {
+  constructor(private settingService: SettingService,
+              private commonValidators: CommonValidators) {
   }
 
   ngOnInit(): void {
     this.formGroup.addControl(this.formKeys.gitlabUrl, new FormControl('', Validators.required));
-    this.formGroup.addControl(this.formKeys.secret, new FormControl('', Validators.required));
+    this.formGroup.addControl(this.formKeys.secret, new FormControl('', Validators.required, this.commonValidators.secretNotExist()));
     this.formGroup.addControl(this.formKeys.token, new FormControl('', Validators.required));
   }
 

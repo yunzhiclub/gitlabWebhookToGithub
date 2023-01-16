@@ -22,6 +22,6 @@ public class Setting {
   @Column(nullable = false)
   private String token = "";
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String secret = "";
 }

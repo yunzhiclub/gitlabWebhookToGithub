@@ -42,9 +42,11 @@ public class GithubMessage {
 
   void sendRequest(Object githubRequest, GithubEvent githubEvent, String access_token) {
     String jsObject = JsonUtil.serializeToJson(githubRequest, true);
-    DingResponse response = this.sendMessage(jsObject, githubEvent, access_token);
-    if (!SUCCESS_CODE.equals(response.getErrcode())) {
-      throw new UnknownException("error");
+    if(!access_token.equals("")) {
+      DingResponse response = this.sendMessage(jsObject, githubEvent, access_token);
+      if (!SUCCESS_CODE.equals(response.getErrcode())) {
+        throw new UnknownException("error");
+      }
     }
   }
 
@@ -54,9 +56,11 @@ public class GithubMessage {
    * @param githubEvent githubEvent
    */
   void sendJsonMessage(String jsObject, GithubEvent githubEvent, String access_token){
-    DingResponse response = this.sendMessage(jsObject, githubEvent, access_token);
-    if (!SUCCESS_CODE.equals(response.getErrcode())) {
-      throw new UnknownException("error");
+    if(!access_token.equals("")){
+      DingResponse response = this.sendMessage(jsObject, githubEvent, access_token);
+      if (!SUCCESS_CODE.equals(response.getErrcode())) {
+        throw new UnknownException("error");
+      }
     }
   }
 

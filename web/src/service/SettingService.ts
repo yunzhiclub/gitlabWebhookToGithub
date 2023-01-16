@@ -73,4 +73,10 @@ export class SettingService {
 
     return this.httpClient.put<Setting>(`${this.baseUrl}/${settingId}`, setting);
   }
+
+  public existBySecret(secret: string): Observable<boolean> {
+    //订阅
+    const params = new HttpParams().append('secret', secret);
+    return this.httpClient.get<boolean>(this.baseUrl + '/existBySecret', {params});
+  }
 }
