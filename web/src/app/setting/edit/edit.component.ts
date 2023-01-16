@@ -5,6 +5,7 @@ import { SettingService } from "../../../service/SettingService";
 import { Assert } from "@yunzhi/utils";
 import { Setting } from "../../../entity/setting";
 import { ThyNotifyService } from "ngx-tethys/notify";
+import { CommonValidators } from "../../validator/CommonValidators";
 
 @Component({
   selector: 'app-edit',
@@ -21,7 +22,8 @@ export class EditComponent implements OnInit {
   setting = {} as Setting
   init= false;
   constructor(private settingService: SettingService,
-              private notifyService: ThyNotifyService) { }
+              private notifyService: ThyNotifyService,
+              private commonValidators: CommonValidators) { }
 
   ngOnInit(): void {
     Assert.isInteger(this.settingID, 'id must to int');
@@ -37,20 +39,23 @@ export class EditComponent implements OnInit {
   formKeys = {
     gitlabUrl: 'gitlabUrl',
     token: 'token',
-    secret: 'secret'
+    secret: 'secret',
+    name: 'name'
   }
 
   setFormGroup(setting: Setting) {
-    this.formGroup.addControl(this.formKeys.token, new FormControl(setting.token, Validators.required));
-    this.formGroup.addControl(this.formKeys.secret, new FormControl(setting.secret, Validators.required));
-    this.formGroup.addControl(this.formKeys.gitlabUrl, new FormControl(setting.gitlabUrl, Validators.required));
+    this.formGroup.addControl(this.formKeys.gitlabUrl, new FormControl(setting.gitlabUrl, [Validators.required, this.commonValidators.urlValidate]));
+    this.formGroup.addControl(this.formKeys.secret, new FormControl(setting.secret, [Validators.required, this.commonValidators.secret], this.commonValidators.secretNotExist()));
+    this.formGroup.addControl(this.formKeys.token, new FormControl(setting.token, [Validators.required, this.commonValidators.tokenLength, this.commonValidators.token]));
+    this.formGroup.addControl(this.formKeys.name, new FormControl(setting.name, [Validators.required, this.commonValidators.nameValidate]));
     this.init=true;
   }
   onSubmit(formGroup: FormGroup) {
     const setting = {
       gitlabUrl: formGroup.get(this.formKeys.gitlabUrl)?.value,
       token: formGroup.get(this.formKeys.token)?.value,
-      secret: formGroup.get(this.formKeys.secret)?.value
+      secret: formGroup.get(this.formKeys.secret)?.value,
+      name: formGroup.get(this.formKeys.name)?.value
     } as Setting;
 
     this.settingService.update(this.settingID, setting)
@@ -60,7 +65,6 @@ export class EditComponent implements OnInit {
           this.isFinish.emit(data);
         },
         error: err => {
-          console.log(err)
           this.notifyService.error('创建失败', err);
         }
       })

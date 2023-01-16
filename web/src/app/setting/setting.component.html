@@ -28,6 +28,7 @@
         <table class="table table-striped mt-8 ">
           <thead>
           <tr class="table-primary flex-row-reverse">
+            <th>项目名称</th>
             <th>GitlabUrl</th>
             <th>GithubToken</th>
             <th>Secret</th>
@@ -38,6 +39,7 @@
           <thy-empty *ngIf="pageData.content?.length === 0" thyMessage="数据为空, 请添加" [thyTopAuto]="true" class="empty-container bg-content"></thy-empty>
 
           <tr *ngFor="let setting of pageData.content ; index as i" height="100px">
+            <td>{{setting.name}}</td>
             <td>{{setting.gitlabUrl}}</td>
             <td>{{setting.token}}</td>
             <td>{{setting.secret}}</td>
@@ -56,7 +58,6 @@
             </td>
           </tr>
         </table>
-
       </div>
       <thy-pagination
         *ngIf="pageData.content?.length !== 0"
