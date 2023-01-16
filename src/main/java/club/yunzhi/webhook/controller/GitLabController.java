@@ -1,5 +1,6 @@
 package club.yunzhi.webhook.controller;
 
+import club.yunzhi.webhook.schedule.NotifySchedule;
 import club.yunzhi.webhook.service.GitLabNotifyService;
 import club.yunzhi.webhook.util.ResponseUtil;
 import club.yunzhi.webhook.vo.ResponseVo;
@@ -19,15 +20,16 @@ import java.io.IOException;
 @RequestMapping("/oapi.dingtalk.com/robot/send")
 @Slf4j
 public class GitLabController {
-  @Autowired
-  private GitLabNotifyService gitLabNotifyService;
 
-  // 不用自定义机器人 不需要secret字段
+  @Autowired
+  private NotifySchedule notifySchedule;
+
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseVo pushHook(@RequestBody String json,
                              @RequestHeader(name = "X-Gitlab-Event") String event,
-                             @RequestParam String access_token) throws IOException {
-    gitLabNotifyService.handleEventData(json,event, access_token);
+                             @RequestParam String access_token) {
+    // 异步处理 直接向gitlab返回ok
+    notifySchedule.putIntoHashMap(json, event, access_token);
     return ResponseUtil.ok();
   }
 }

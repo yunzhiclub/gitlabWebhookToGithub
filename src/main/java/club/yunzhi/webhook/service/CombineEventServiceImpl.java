@@ -1,6 +1,7 @@
 package club.yunzhi.webhook.service;
 
 import club.yunzhi.webhook.entities.GitlabEvent;
+import club.yunzhi.webhook.entities.GitlabRequest;
 import club.yunzhi.webhook.request.GitLabCommentRequest;
 import club.yunzhi.webhook.request.GitlabIssueRequest;
 import club.yunzhi.webhook.request.GitlabMergeRequestRequest;
@@ -10,8 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -19,47 +19,34 @@ public class CombineEventServiceImpl implements CombineEventService {
 
     private static final Logger logger = LoggerFactory.getLogger(CombineEventServiceImpl.class);
 
-    /**
-     * key： access_token, github钉钉机器人的token
-     * value GitlabEvent,  gitlab事件
-     */
-    private static final HashMap<String, String> hashMap = new HashMap<>();
 
     @Override
-    public String handleEvent(String json, String eventName, String access_token) throws IOException {
-        String handleJson = this.commentAndIssueClose(json, eventName, access_token);
+    public String handleEvent(Queue<GitlabRequest> queue, GitlabRequest gitlabRequest) throws IOException {
+        String handleJson = this.commentAndIssueClose(queue, gitlabRequest);
         // 有新的事件 在这里加 handleJson = xxx();
         return handleJson;
     }
 
 
     @Override
-    public String commentAndIssueClose(String json, String eventName, String access_token) throws IOException {
+    public String commentAndIssueClose(Queue<GitlabRequest> queue, GitlabRequest gitlabRequest) throws IOException {
+        String eventName = gitlabRequest.getEventName();
+        String json = gitlabRequest.getJson();
+        String access_token = gitlabRequest.getAccess_token();
 
-        if (Objects.equals(eventName, GitlabEvent.issueHook)) {
-            // 若issue事件前面有comment事件，且为issue为close事件 则不发送该事件
-            if (Objects.equals(hashMap.get(access_token), GitlabEvent.noteHook) && this.judgeIsIssueClose(json)) {
-                hashMap.put(access_token, GitlabEvent.issueHook);
-                // 返回null 表示不发送
+        if (Objects.equals(eventName, GitlabEvent.noteHook)) {
+            Iterator<GitlabRequest> iterator = queue.iterator();
+            GitlabRequest nextRequest = iterator.next();
+            // 若下一个事件为不为issueClose事件，或不为同一issue 返回null
+            if(!Objects.equals(nextRequest.getEventName(), GitlabEvent.issueHook) || !this.judgeIsIssueClose(json)
+                || !this.judgeIsSameIssue(nextRequest.getJson(), json)) {
                 return null;
             }
-        } else if (Objects.equals(eventName, GitlabEvent.noteHook)) {
-            try {
-                hashMap.put(access_token, GitlabEvent.noteHook);
-                // 因为评论事件先于issue事件发送， 所以评论事件等待两秒
-                TimeUnit.SECONDS.sleep(2);
-                // 若2s后存在issue事件 则事件合并
-                if (Objects.equals(hashMap.get(access_token), GitlabEvent.issueHook)) {
-                    hashMap.put(access_token, "");
-                    return this.setIssueTittleClose(json);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+            // 出栈，进行事件合并，不发送issueClose事件
+            iterator.remove();
+            return this.setIssueTittleClose(json);
         }
-        // 清空value
-        hashMap.put(access_token, "");
+        // 若不进行事件合并 返回原json
         return json;
     }
 
@@ -84,5 +71,21 @@ public class CombineEventServiceImpl implements CombineEventService {
     private Boolean judgeIsIssueClose(String json) throws IOException {
         GitlabIssueRequest gitlabIssueRequest = EventService.covertJson(json, GitlabIssueRequest.class);
         return Objects.equals(gitlabIssueRequest.getObject_attributes().getAction(), "close");
+    }
+
+    /**
+     * 判断两个事件是否为同一issue事件
+     * @param GitlabIssueRequestJson  issue事件json
+     * @param GitlabIssueCommentJson  comment事件json
+     * @return true 是 false 不是
+     */
+    private Boolean judgeIsSameIssue(String GitlabIssueRequestJson, String GitlabIssueCommentJson) throws IOException {
+        GitlabIssueRequest gitlabIssueRequest = EventService.covertJson(GitlabIssueRequestJson, GitlabIssueRequest.class);
+        GitLabCommentRequest gitLabCommentRequest = EventService.covertJson(GitlabIssueCommentJson, GitLabCommentRequest.class);
+
+        if(gitLabCommentRequest.getIssue() == null) {
+            return false;
+        }
+        return Objects.equals(gitlabIssueRequest.getObject_attributes().getIid(), gitLabCommentRequest.getIssue().getIid());
     }
 }
