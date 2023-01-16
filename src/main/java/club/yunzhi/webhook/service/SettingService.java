@@ -45,4 +45,7 @@ public interface SettingService {
   void deleteById(Long id);
 
   Setting getSettingBySecret(String secret);
+
+  boolean existBySetting(String username);
+
 }

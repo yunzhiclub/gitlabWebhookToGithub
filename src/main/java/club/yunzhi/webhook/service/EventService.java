@@ -16,6 +16,7 @@ public interface EventService {
 
   /**
    * 处理事件
+   *
    * @param json data
    * @throws IOException exception
    */
@@ -29,6 +30,10 @@ public interface EventService {
   }
 
   static String getAccessToken(String secret, SettingService settingService) throws IOException {
-    return settingService.getSettingBySecret(secret).getToken();
+    if (settingService.getSettingBySecret(secret) == null) {
+      return "";
+    } else {
+      return settingService.getSettingBySecret(secret).getToken();
+    }
   }
 }

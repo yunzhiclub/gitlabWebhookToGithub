@@ -34,7 +34,7 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
   }
 
   @Override
-  public void handleEventData(String json, String eventName,String access_token) throws IOException {
+  public void handleEventData(String json, String eventName,String secret) throws IOException {
 
     EventService eventService = this.map.get(eventName);
 
@@ -43,13 +43,13 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
       return;
     }
     // 判断事件合并进行处理，不进行处理则返回原json值
-    String handleJson = combineEventService.handleEvent(json, eventName, access_token);
+    String handleJson = combineEventService.handleEvent(json, eventName, secret);
 
     if(handleJson == null) {
       logger.info("事件合并，不发送该事件");
       return;
     }
-      eventService.handleEvent(handleJson, access_token);
+      eventService.handleEvent(handleJson, secret);
   }
 
 
