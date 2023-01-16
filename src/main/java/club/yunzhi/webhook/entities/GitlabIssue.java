@@ -11,5 +11,5 @@ public class GitlabIssue {
   Integer iid;
   String state;
   String url;
-  String action;
+  public String action;
 }

@@ -16,11 +16,14 @@ import java.io.IOException;
 public class CommentEventService implements EventService {
     private final ConvertEntityService convertEntityService;
     private final GithubMessage githubMessage;
+    private final SettingService settingService;
 
     public CommentEventService(ConvertEntityService convertEntityService,
-                               GithubMessage githubMessage) {
+                               GithubMessage githubMessage,
+                               SettingService settingService) {
         this.convertEntityService = convertEntityService;
         this.githubMessage = githubMessage;
+        this.settingService = settingService;
     }
 
     @Override
@@ -29,7 +32,9 @@ public class CommentEventService implements EventService {
     }
 
     @Override
-    public void handleEvent(String json, String access_token) throws IOException {
+    public void handleEvent(String json, String secret) throws IOException {
+        String accessToken = EventService.getAccessToken(secret, settingService);
+
         GitLabCommentRequest gitLabCommentRequest = EventService.covertJson(json, GitLabCommentRequest.class);
         GithubIssueCommentRequest githubIssueCommentRequest = new GithubIssueCommentRequest();
 
@@ -47,7 +52,7 @@ public class CommentEventService implements EventService {
 
         githubIssueCommentRequest.setComment(convertEntityService.getCommentFromGitlabToGithub(gitLabCommentRequest.getObject_attributes()));
         githubIssueCommentRequest.setRepository(convertEntityService.getRepositoryFromGitlabToGithub(gitLabCommentRequest.getRepository()));
-        githubIssueCommentRequest.setSender(convertEntityService.getSender(gitLabCommentRequest.getUser().getUsername()));
-        githubMessage.sendRequest(githubIssueCommentRequest, GithubEvent.issue_comment, access_token);
+        githubIssueCommentRequest.setSender(convertEntityService.getSender(gitLabCommentRequest.getUser().getUsername(), secret));
+        githubMessage.sendRequest(githubIssueCommentRequest, GithubEvent.issue_comment, accessToken);
     }
 }

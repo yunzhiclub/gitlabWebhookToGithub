@@ -1,15 +1,20 @@
 package club.yunzhi.webhook.service;
 
+import club.yunzhi.webhook.entities.Sender;
 import club.yunzhi.webhook.entities.Setting;
 import club.yunzhi.webhook.repository.SettingRepository;
+import club.yunzhi.webhook.service.specs.SettingSpecs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
+import java.util.List;
+
 @Service
 public class SettingServiceImpl implements SettingService {
   private final SettingRepository settingRepository;
@@ -59,4 +64,19 @@ public class SettingServiceImpl implements SettingService {
   public void deleteById(Long id) {
     this.settingRepository.deleteById(id);
   }
+
+  @Override
+  public Setting getSettingBySecret(String secret) {
+      List<Setting> settings = this.settingRepository.getSettingBySecret(secret);
+      if (settings.isEmpty()){
+        System.out.println("此Secret无对应Setting");
+      } else if(settings.size() > 1) {
+        System.out.println("此Secret找到了多个Setting");
+      } else {
+        return settings.get(0);
+      }
+      return null;
+  }
+
+
 }

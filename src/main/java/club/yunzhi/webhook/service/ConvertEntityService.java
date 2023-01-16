@@ -1,9 +1,11 @@
 package club.yunzhi.webhook.service;
 
 import club.yunzhi.webhook.entities.*;
+import club.yunzhi.webhook.repository.SettingRepository;
 import club.yunzhi.webhook.request.GithubIssueCommentRequest;
 import club.yunzhi.webhook.request.ParentRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,13 @@ import java.util.List;
 @Slf4j
 public class ConvertEntityService {
 
+  private final
+  SettingRepository settingRepository;
+
+  public ConvertEntityService(SettingRepository settingRepository) {
+    this.settingRepository = settingRepository;
+  }
+
   /**
    * 所改变的关键字(以github为基准)
    */
@@ -26,8 +35,6 @@ public class ConvertEntityService {
     body
   }
 
-  @Value("${gitlabUrl}")
-  private String gitlabUrl;
 
   GithubIssue getIssueFromGitlabToGithub(GitlabIssue gitlabIssue) {
     GithubIssue githubIssue = new GithubIssue();
@@ -54,10 +61,17 @@ public class ConvertEntityService {
     return githubRepository;
   }
 
-  Sender getSender(String userName) {
+  Sender getSender(String userName, String secret) {
     Sender sender = new Sender();
     sender.setLogin(userName);
-    sender.setHtml_url(gitlabUrl + "/" + userName);
+    List<Setting> settings = this.settingRepository.getSettingBySecret(secret);
+    if (settings.isEmpty()){
+      System.out.println("此Secret无对应Setting");
+    } else if(settings.size() > 1) {
+      System.out.println("此Secret找到了多个Setting");
+    } else {
+      sender.setHtml_url(settings.get(0).getGitlabUrl() + "/" + userName);
+    }
     return sender;
   }
 
