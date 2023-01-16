@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public interface SettingService {
 
@@ -43,4 +44,5 @@ public interface SettingService {
    */
   void deleteById(Long id);
 
+  Setting getSettingBySecret(String secret);
 }

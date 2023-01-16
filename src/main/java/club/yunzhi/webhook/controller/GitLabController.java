@@ -26,8 +26,8 @@ public class GitLabController {
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseVo pushHook(@RequestBody String json,
                              @RequestHeader(name = "X-Gitlab-Event") String event,
-                             @RequestParam String access_token) throws IOException {
-    gitLabNotifyService.handleEventData(json,event, access_token);
+                             @RequestHeader(name = "X-Gitlab-Token") String secret) throws IOException {
+    gitLabNotifyService.handleEventData(json,event, secret);
     return ResponseUtil.ok();
   }
 }
