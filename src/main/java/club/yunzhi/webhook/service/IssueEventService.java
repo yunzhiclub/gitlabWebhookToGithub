@@ -26,11 +26,14 @@ public class IssueEventService implements EventService {
 
   private final ConvertEntityService convertEntityService;
   private final GithubMessage githubMessage;
+  private final SettingService settingService;
 
   public IssueEventService(ConvertEntityService convertEntityService,
-                           GithubMessage githubMessage) {
+                           GithubMessage githubMessage,
+                           SettingService settingService) {
     this.convertEntityService = convertEntityService;
     this.githubMessage = githubMessage;
+    this.settingService = settingService;
   }
 
   @Override
@@ -40,42 +43,48 @@ public class IssueEventService implements EventService {
 
 
   @Override
-  public void handleEvent(String json, String access_token) throws IOException {
+  public void handleEvent(String json, String secret) throws IOException {
+    String accessToken = EventService.getAccessToken(secret, settingService);
     GitlabIssueRequest gitlabIssueRequest = covertJson(json);
     GithubIssueRequest githubIssueRequest = new GithubIssueRequest();
     boolean sendMessage = true;
-    switch (gitlabIssueRequest.getObject_attributes().getAction()) {
-      case "close":
-        githubIssueRequest.setAction("closed");
-        break;
-      case "open":
-        githubIssueRequest.setAction("opened");
-        break;
-      case "reopen":
-        githubIssueRequest.setAction("reopened");
-        break;
-      case "update":
-        sendAssigneeOrLabelsMessage(gitlabIssueRequest, access_token);
-        sendMessage = false;
-        break;
-      default:
-        sendMessage = false;
-        logger.info("action:" + gitlabIssueRequest.getObject_attributes().getAction() + "暂不支持");
-        break;
+    if (gitlabIssueRequest.getObject_attributes().action != null) {
+      switch (gitlabIssueRequest.getObject_attributes().getAction()) {
+        case "close":
+          githubIssueRequest.setAction("closed");
+          break;
+        case "open":
+          githubIssueRequest.setAction("opened");
+          break;
+        case "reopen":
+          githubIssueRequest.setAction("reopened");
+          break;
+        case "update":
+          sendAssigneeOrLabelsMessage(gitlabIssueRequest, accessToken);
+          sendMessage = false;
+          break;
+        default:
+          sendMessage = false;
+          logger.info("action:" + gitlabIssueRequest.getObject_attributes().getAction() + "暂不支持");
+          break;
+      }
+    } else {
+      sendMessage = false;
     }
+
     if (sendMessage) {
       githubIssueRequest.setIssue(convertEntityService.getIssueFromGitlabToGithub(gitlabIssueRequest.getObject_attributes()));
       githubIssueRequest.setRepository(convertEntityService.getRepositoryFromGitlabToGithub(gitlabIssueRequest.getRepository()));
-      githubIssueRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername()));
+      githubIssueRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername(), secret));
       githubIssueRequest.setChanges(convertEntityService.getChangesFromGitlabToGithub(gitlabIssueRequest.getChanges()));
-      githubMessage.sendRequest(githubIssueRequest, GithubEvent.issues, access_token);
+      githubMessage.sendRequest(githubIssueRequest, GithubEvent.issues, accessToken);
     }
   }
 
   private void sendAssigneeOrLabelsMessage(GitlabIssueRequest gitlabIssueRequest, String access_token) {
     GithubIssueCommentRequest githubIssueCommentRequest = new GithubIssueCommentRequest();
     githubIssueCommentRequest.setIssue(convertEntityService.getIssueFromGitlabToGithub(gitlabIssueRequest.getObject_attributes()));
-    githubIssueCommentRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername()));
+    githubIssueCommentRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername(), access_token));
     githubIssueCommentRequest.setRepository(convertEntityService.getRepositoryFromGitlabToGithub(gitlabIssueRequest.getRepository()));
     GithubIssueCommentRequest.Comment comment = new GithubIssueCommentRequest.Comment();
 

@@ -9,8 +9,6 @@ import java.sql.Timestamp;
  */
 @Data
 public class GitlabRequest {
-    // 请求id 唯一
-    private String requestId;
     /**
      * 请求json数据
      */
@@ -18,7 +16,7 @@ public class GitlabRequest {
 
     private String eventName;
 
-    private String access_token;
+    private String secret;
     /**
      * 接受请求时当前时间
      */

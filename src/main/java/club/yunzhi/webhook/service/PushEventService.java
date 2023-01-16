@@ -9,10 +9,12 @@ import java.io.IOException;
 @Slf4j
 public class PushEventService implements EventService {
   private final GithubMessage githubMessage;
+  private final SettingService settingService;
 
-  public PushEventService(
-      GithubMessage githubMessage) {
+  public PushEventService(GithubMessage githubMessage,
+                          SettingService settingService) {
     this.githubMessage = githubMessage;
+    this.settingService = settingService;
   }
 
 
@@ -22,8 +24,10 @@ public class PushEventService implements EventService {
   }
 
   @Override
-  public void handleEvent(String json, String access_token) throws IOException {
-    githubMessage.sendJsonMessage(json, GithubEvent.push, access_token);
+  public void handleEvent(String json, String secret) throws IOException {
+    String accessToken = EventService.getAccessToken(secret, settingService);
+
+    githubMessage.sendJsonMessage(json, GithubEvent.push, accessToken);
   }
 
 }

@@ -69,7 +69,7 @@ public class NotifySchedule {
             if (resultJson == null) {
                 logger.info("事件合并，不发送该事件");
             }
-            this.gitLabNotifyService.handleEventData(resultJson, gitlabRequest.getEventName(), gitlabRequest.getAccess_token());
+            this.gitLabNotifyService.handleEventData(resultJson, gitlabRequest.getEventName(), gitlabRequest.getSecret());
         }
     }
 
@@ -78,17 +78,15 @@ public class NotifySchedule {
      * 将请求添加到hashMap中进行处理
      */
     @Async
-    public void putIntoHashMap(String json, String eventName, String access_token) {
+    public void putIntoQueue(String json, String eventName, String secret) {
         Assert.notNull(json, "json不能为空");
         Assert.notNull(eventName, "eventName不能为空");
-        Assert.notNull(access_token, "access_token不能为空");
+        Assert.notNull(secret, "secret不能为空");
 
         GitlabRequest gitlabRequest = new GitlabRequest();
-        // 这里用UUID做请求id
-        gitlabRequest.setRequestId(UUID.randomUUID().toString().replace("-", ""));
         gitlabRequest.setJson(json);
         gitlabRequest.setEventName(eventName);
-        gitlabRequest.setAccess_token(access_token);
+        gitlabRequest.setSecret(secret);
         gitlabRequest.setReceivedTime(new Timestamp(System.currentTimeMillis()));
         // 添加进队列
         this.queue.offer(gitlabRequest);

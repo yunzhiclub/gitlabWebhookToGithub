@@ -10,5 +10,5 @@ public interface GitLabNotifyService {
    * @param eventName event
    * @throws IOException exception
    */
-  void handleEventData(String json,String eventName, String access_token) throws IOException;
+  void handleEventData(String json,String eventName, String secret) throws IOException;
 }

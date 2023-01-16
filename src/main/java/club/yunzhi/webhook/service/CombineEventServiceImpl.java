@@ -32,7 +32,6 @@ public class CombineEventServiceImpl implements CombineEventService {
     public String commentAndIssueClose(Queue<GitlabRequest> queue, GitlabRequest gitlabRequest) throws IOException {
         String eventName = gitlabRequest.getEventName();
         String json = gitlabRequest.getJson();
-        String access_token = gitlabRequest.getAccess_token();
 
         if (Objects.equals(eventName, GitlabEvent.noteHook)) {
             Iterator<GitlabRequest> iterator = queue.iterator();

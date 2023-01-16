@@ -34,7 +34,7 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
   }
 
   @Override
-  public void handleEventData(String json, String eventName,String access_token) throws IOException {
+  public void handleEventData(String json, String eventName,String secret) throws IOException {
 
     EventService eventService = this.map.get(eventName);
 
@@ -42,7 +42,7 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
       logger.info("未添加对应 " + eventName + " service");
       return;
     }
-      eventService.handleEvent(json, access_token);
+      eventService.handleEvent(json, secret);
   }
 
 
