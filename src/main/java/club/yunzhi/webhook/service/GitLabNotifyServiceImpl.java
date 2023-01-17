@@ -42,14 +42,8 @@ public class GitLabNotifyServiceImpl implements GitLabNotifyService {
       logger.info("未添加对应 " + eventName + " service");
       return;
     }
-    // 判断事件合并进行处理，不进行处理则返回原json值
-    String handleJson = combineEventService.handleEvent(json, eventName, secret);
+      eventService.handleEvent(json, secret);
 
-    if(handleJson == null) {
-      logger.info("事件合并，不发送该事件");
-      return;
-    }
-      eventService.handleEvent(handleJson, secret);
   }
 
 

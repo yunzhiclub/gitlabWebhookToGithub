@@ -22,7 +22,7 @@ public class Setting {
   @Column(nullable = false)
   private String token = "";
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = true, length = 150)
   private String secret = "";
 
   @Column(nullable = false)

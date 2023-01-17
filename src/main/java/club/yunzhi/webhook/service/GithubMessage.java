@@ -44,6 +44,7 @@ public class GithubMessage {
     String jsObject = JsonUtil.serializeToJson(githubRequest, true);
     if(!access_token.equals("")) {
       DingResponse response = this.sendMessage(jsObject, githubEvent, access_token);
+
       if (!SUCCESS_CODE.equals(response.getErrcode())) {
         throw new UnknownException("error");
       }
@@ -81,7 +82,7 @@ public class GithubMessage {
       return CommonHttpUtils.handleHttpResponse(httpClientResponse, new TypeReference<DingResponse<Void>>() {
       });
     } catch (IOException | FailedHandleHttpResponseException | FailedHttpCallingException e) {
-      throw new UnknownException("Failed to execute http request for save article");
+      throw new UnknownException("Failed to execute http request: " + e.getMessage());
     } catch (Exception e) {
       throw new UnknownException("Failed to execute http request");
     }
