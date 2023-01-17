@@ -35,7 +35,7 @@
           </tr>
           <tbody>
 
-          <tr  *ngIf="!pageData.content?.length || !(pageData.content?.length === 0)" style="border: transparent">
+          <tr  *ngIf="!pageData.content?.length || (pageData.content?.length === 0)" style="border: transparent">
             <td colspan="5"  style="border: transparent">
               <thy-empty thySize="lg" thyMessage="数据为空, 请添加" [thyTopAuto]="true" class="empty-container bg-content"></thy-empty>
             </td>
@@ -63,7 +63,7 @@
         </table>
       </div>
       <thy-pagination
-        *ngIf="!pageData.content?.length || !(pageData.content?.length === 0)"
+        *ngIf="pageData.content?.length || !(pageData.content?.length === 0)"
                       [(thyPageIndex)]="pageData.number"
                       [thyPageSize]="pageData.size"
                       [thyTotal]="pageData.totalElements"
