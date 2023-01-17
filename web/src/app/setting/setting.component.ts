@@ -114,6 +114,7 @@ export class SettingComponent implements OnInit {
             next: () => {
               this.notifyService.success(`删除成功`);
               this.pageData.content.splice(index, 1);
+              this.pageData.totalElements -= 1;
             },
             error: err => {
               this.notifyService.error('删除失败', err);

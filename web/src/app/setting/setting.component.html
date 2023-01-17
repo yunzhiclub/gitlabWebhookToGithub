@@ -36,7 +36,13 @@
           </tr>
           </thead>
           <tbody>
-          <thy-empty *ngIf="pageData.content?.length === 0" thyMessage="数据为空, 请添加" [thyTopAuto]="true" class="empty-container bg-content"></thy-empty>
+          <tr  *ngIf="pageData.content?.length === 0" style="border: transparent">
+            <td colspan="5"  style="border: transparent">
+              <thy-empty thySize="lg" thyMessage="数据为空, 请添加" [thyTopAuto]="true" class="empty-container bg-content"></thy-empty>
+
+            </td>
+
+          </tr>
 
           <tr *ngFor="let setting of pageData.content ; index as i" height="100px">
             <td>{{setting.name}}</td>
