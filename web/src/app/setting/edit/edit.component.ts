@@ -46,7 +46,6 @@ export class EditComponent implements OnInit {
     secret: 'secret',
     name: 'name'
   }
-
   setFormGroup(setting: Setting) {
     this.formGroup.addControl(this.formKeys.gitlabUrl, new FormControl(setting.gitlabUrl, [Validators.required, this.commonValidators.urlValidate]));
     this.formGroup.addControl(this.formKeys.secret, new FormControl(setting.secret, [Validators.required, this.commonValidators.secret], this.commonValidators.secretNotExist()));

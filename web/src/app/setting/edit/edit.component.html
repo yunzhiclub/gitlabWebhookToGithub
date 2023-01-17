@@ -58,7 +58,8 @@
     </thy-input-group>
     <small class="text-danger"
            *ngIf="formGroup.get(this.formKeys.secret)!.touched && formGroup.get(this.formKeys.secret)!.invalid">
-        <span *ngIf="formGroup.get(this.formKeys.secret)?.errors?.secretExist">
+        <span
+          *ngIf="setting.secret!==formGroup.get(this.formKeys.secret)?.value && formGroup.get(this.formKeys.secret)?.errors?.secretExist">
                       该Secret已存在，请重新输入！
         </span>
       <span *ngIf="formGroup.get(this.formKeys.secret)?.errors?.secret">
@@ -66,9 +67,14 @@
         </span>
     </small>
   </thy-form-group>
-
   <thy-form-group-footer>
-    <button [thyButton]="'primary'" thyLoadingText="" class="ml-4" type="submit" [disabled]="formGroup.invalid">
+    <button [thyButton]="'primary'" thyLoadingText="" class="ml-4" type="submit"
+            [disabled]="formGroup.invalid &&
+            !(formGroup.get(this.formKeys.secret)?.errors?.secretExist &&
+            !formGroup.get(this.formKeys.token)?.errors &&
+            !formGroup.get(this.formKeys.name)?.errors&&
+            !formGroup.get(this.formKeys.gitlabUrl)?.errors&&
+            formGroup.get(formKeys.secret)?.value == originSecret)">
       提交
     </button>
   </thy-form-group-footer>
