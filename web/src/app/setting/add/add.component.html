@@ -20,7 +20,8 @@
   <thy-form-group thyLabelText="GitlabUrl" thyLabelRequired>
     <pre>{{formGroup.get(this.formKeys.gitlabUrl)?.errors?.url}}</pre>
     <input [formControlName]="formKeys.gitlabUrl" thyInput name="name" required
-           placeholder="请输入GitlabUrl,如:http://gitlab.xxxx.com:1234"/>
+           placeholder="请输入GitlabUrl"/>
+    <small>如: http://gitlab.xxxx.com:1234</small>
     <small class="text-danger"
            *ngIf="formGroup.get(this.formKeys.gitlabUrl)!.touched && formGroup.get(this.formKeys.gitlabUrl)!.invalid">
         <span *ngIf="formGroup.get(this.formKeys.gitlabUrl)?.errors?.urlValidate">
