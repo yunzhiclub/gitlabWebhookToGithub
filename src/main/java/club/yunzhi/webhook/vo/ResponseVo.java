@@ -1,6 +1,5 @@
 package club.yunzhi.webhook.vo;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,13 +7,11 @@ import lombok.NoArgsConstructor;
  * 响应实体
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ResponseVo<T> {
+public class ResponseVo {
 
   private Integer code;
   private String msg;
-  private T data;
 
   public ResponseVo(Integer code,String msg){
     this.code = code;

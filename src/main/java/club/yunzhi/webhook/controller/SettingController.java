@@ -34,8 +34,8 @@ public class SettingController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Setting save(@RequestBody Setting building) {
-    return this.settingService.save(building);
+  public Setting save(@RequestBody Setting setting) {
+    return this.settingService.save(setting);
   }
 
   @DeleteMapping("{id}")
