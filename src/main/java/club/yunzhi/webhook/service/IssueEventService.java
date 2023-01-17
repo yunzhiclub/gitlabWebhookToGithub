@@ -60,7 +60,7 @@ public class IssueEventService implements EventService {
           githubIssueRequest.setAction("reopened");
           break;
         case "update":
-          sendAssigneeOrLabelsMessage(gitlabIssueRequest, accessToken);
+          sendAssigneeOrLabelsMessage(gitlabIssueRequest, secret, accessToken);
           sendMessage = false;
           break;
         default:
@@ -82,10 +82,10 @@ public class IssueEventService implements EventService {
     }
   }
 
-  private void sendAssigneeOrLabelsMessage(GitlabIssueRequest gitlabIssueRequest, String access_token) {
+  private void sendAssigneeOrLabelsMessage(GitlabIssueRequest gitlabIssueRequest, String secret, String access_token) {
     GithubIssueCommentRequest githubIssueCommentRequest = new GithubIssueCommentRequest();
     githubIssueCommentRequest.setIssue(convertEntityService.getIssueFromGitlabToGithub(gitlabIssueRequest.getObject_attributes()));
-    githubIssueCommentRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername(), access_token));
+    githubIssueCommentRequest.setSender(convertEntityService.getSender(gitlabIssueRequest.getUser().getUsername(), secret));
     githubIssueCommentRequest.setRepository(convertEntityService.getRepositoryFromGitlabToGithub(gitlabIssueRequest.getRepository()));
     GithubIssueCommentRequest.Comment comment = new GithubIssueCommentRequest.Comment();
 
