@@ -31,11 +31,13 @@ public class SettingServiceImpl implements SettingService {
     Assert.notNull(setting.getGitlabUrl(), "GitlabUrl不能为空");
     Assert.notNull(setting.getSecret(), "Secret不能为空");
     Assert.notNull(setting.getToken(), "Token不能为空");
+    Assert.notNull(setting.getName(), "Name不能为空");
     Setting newSetting = new Setting();
 
     newSetting.setGitlabUrl(setting.getGitlabUrl());
     newSetting.setSecret(setting.getSecret());
     newSetting.setToken(setting.getToken());
+    newSetting.setName(setting.getName());
 
     return this.settingRepository.save(newSetting);
   }
@@ -56,10 +58,12 @@ public class SettingServiceImpl implements SettingService {
     Assert.notNull(setting.getGitlabUrl(), "GitlabUrl不能为空");
     Assert.notNull(setting.getSecret(), "Secret不能为空");
     Assert.notNull(setting.getToken(), "Token不能为空");
+    Assert.notNull(setting.getName(), "Name不能为空");
 
     oldSetting.setGitlabUrl(setting.getGitlabUrl());
     oldSetting.setSecret(setting.getSecret());
     oldSetting.setToken(setting.getToken());
+    oldSetting.setName(setting.getName());
     return this.settingRepository.save(oldSetting);
   }
 

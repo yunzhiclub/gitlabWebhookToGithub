@@ -56,4 +56,16 @@ export class CommonService{
     });
   }
 
+  public randomString(length: number) {
+    return hex(length);
+  }
+}
+
+function hex(n: number) {
+  n = n || 20;
+  var result = '';
+  while (n--) {
+    result += Math.floor(Math.random() * 16).toString(16).toUpperCase();
+  }
+  return result;
 }

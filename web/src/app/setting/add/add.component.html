@@ -7,23 +7,60 @@
 
 <form (ngSubmit)="onSubmit(formGroup)" [formGroup]="formGroup" name="demoForm"
       class="px-md-5 p-3  mt-6 mb-2 col-8">
+  <thy-form-group thyLabelText="项目名称" thyLabelRequired>
+    <input [formControlName]="formKeys.name" thyInput name="name" required
+           placeholder="请输入项目名称"/>
+    <small class="text-danger"
+           *ngIf="formGroup.get(this.formKeys.name)!.touched && formGroup.get(this.formKeys.name)!.invalid">
+        <span *ngIf="formGroup.get(this.formKeys.name)?.errors?.space">
+                      项目名称不能包含空格
+        </span>
+    </small>
+  </thy-form-group>
   <thy-form-group thyLabelText="GitlabUrl" thyLabelRequired>
+    <pre>{{formGroup.get(this.formKeys.gitlabUrl)?.errors?.url}}</pre>
     <input [formControlName]="formKeys.gitlabUrl" thyInput name="name" required
-           placeholder="请输入GitlabUrl"/>
-    <small class="mute">如:http://gitlab.xxx.com:xxx</small>
+           placeholder="请输入GitlabUrl,如:http://gitlab.xxxx.com:1234"/>
+    <small class="text-danger"
+           *ngIf="formGroup.get(this.formKeys.gitlabUrl)!.touched && formGroup.get(this.formKeys.gitlabUrl)!.invalid">
+        <span *ngIf="formGroup.get(this.formKeys.gitlabUrl)?.errors?.urlValidate">
+                      URL验证失败，请确认URL是否正确
+        </span>
+    </small>
   </thy-form-group>
   <thy-form-group thyLabelText="GithubToken" thyLabelRequired>
     <input [formControlName]="formKeys.token" thyInput name="name" required
            placeholder="请输入GithubToken"/>
-    <small class="mute">钉钉机器人的token</small>
+    <small class="text-danger"
+           *ngIf="formGroup.get(this.formKeys.token)!.touched && formGroup.get(this.formKeys.token)!.invalid">
+     <span *ngIf="formGroup.get(this.formKeys.token)?.errors?.tokenLength">
+                      token长度只能为64位
+        </span>
+      <span *ngIf="formGroup.get(this.formKeys.token)?.errors?.token">
+                      token只能包含数字和字母
+        </span>
+    </small>
   </thy-form-group>
+
   <thy-form-group thyLabelText="Secret" thyLabelRequired>
+    <thy-input-group>
     <input [formControlName]="formKeys.secret" thyInput name="name" required
            placeholder="请输入Secret"/>
+    <ng-template #append>
+      <div class="input-group-text">
+        <button [thyButton]="'primary'" thyLoadingText="" class="ml-4" (click)="setRandomString()" type="button">
+          生成随机Secret
+        </button>
+      </div>
+    </ng-template>
+    </thy-input-group>
     <small class="text-danger"
            *ngIf="formGroup.get(this.formKeys.secret)!.touched && formGroup.get(this.formKeys.secret)!.invalid">
         <span *ngIf="formGroup.get(this.formKeys.secret)?.errors?.secretExist">
                       该Secret已存在，请重新输入！
+        </span>
+      <span *ngIf="formGroup.get(this.formKeys.secret)?.errors?.secret">
+                      Secret只能包含数字和字母
         </span>
     </small>
   </thy-form-group>

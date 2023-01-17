@@ -9,7 +9,7 @@ import { ThyDialog } from "ngx-tethys/dialog";
 import { SettingService } from "../../service/SettingService";
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-setting',
   templateUrl: './setting.component.html',
   styleUrls: ['./setting.component.css']
 })
@@ -22,9 +22,6 @@ export class SettingComponent implements OnInit {
   ) {
   }
 
-  /**
-   * 所编辑建筑的id，用于传给子组件
-   */
   editSettingId!: number;
 
   currentIndex = 1;
@@ -33,36 +30,18 @@ export class SettingComponent implements OnInit {
 
   component = 'index';
 
-  serviceAreaId!: string;
-
-  setServiceAreaId = false as Boolean;
-
   params = {} as Params;
 
   pageData = {} as Page<Setting>;
 
-
-  // @ViewChild('loginDiv') loginDiv!: ElementRef;
-
-  loginForm: FormGroup = new FormGroup({});
   key = {
     page: 'page',
     size: 'size'
   }
   /** 错误信息 */
   errorInfo: string | undefined;
-  year = new Date().getFullYear();
 
 
-  model = {
-    name: '',
-    password: ''
-  };
-
-
-  onPageSizeChanged(event: number) {
-    this.pageSize = event;
-  }
 
   /**
    * @param $event
@@ -92,6 +71,7 @@ export class SettingComponent implements OnInit {
       .subscribe({
         next: (page) => {
           this.pageData = page;
+          console.log(page)
           this.pageData.number = page.number + 1;
         }
       })
@@ -134,6 +114,7 @@ export class SettingComponent implements OnInit {
             next: () => {
               this.notifyService.success(`删除成功`);
               this.pageData.content.splice(index, 1);
+              this.pageData.totalElements -= 1;
             },
             error: err => {
               this.notifyService.error('删除失败', err);
