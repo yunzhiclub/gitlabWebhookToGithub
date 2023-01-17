@@ -30,7 +30,7 @@
   </thy-form-group>
   <thy-form-group thyLabelText="GithubToken" thyLabelRequired>
     <input [formControlName]="formKeys.token" thyInput name="name" required
-           placeholder="请输入GithubToken"/>
+           placeholder="请输入钉钉机器人的token"/>
     <small class="text-danger"
            *ngIf="formGroup.get(this.formKeys.token)!.touched && formGroup.get(this.formKeys.token)!.invalid">
      <span *ngIf="formGroup.get(this.formKeys.token)?.errors?.tokenLength">
