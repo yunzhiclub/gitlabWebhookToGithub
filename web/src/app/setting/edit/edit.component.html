@@ -40,11 +40,26 @@
     </small>
   </thy-form-group>
   <thy-form-group thyLabelText="Secret" thyLabelRequired>
-    <input [formControlName]="formKeys.secret" thyInput name="name" required
-           placeholder="请输入Secret"/>
+    <thy-input-group>
+      <input [formControlName]="formKeys.secret" thyInput name="name" required
+             placeholder="请输入Secret"/>
+      <ng-template #append>
+        <div class="input-group-text">
+          <button [thyButton]="'primary'" thyLoadingText="" class="ml-4" (click)="setRandomString()" type="button">
+            生成随机Secret
+          </button>
+        </div>
+        <div class="input-group-text" *ngIf="formGroup.get(this.formKeys.secret)?.value != originSecret">
+          <button [thyButton]="'success'" thyLoadingText="" class="ml-4" (click)="restoreSecret()" type="button">
+            恢复原Secret
+          </button>
+        </div>
+      </ng-template>
+    </thy-input-group>
     <small class="text-danger"
            *ngIf="formGroup.get(this.formKeys.secret)!.touched && formGroup.get(this.formKeys.secret)!.invalid">
-        <span *ngIf="formGroup.get(this.formKeys.secret)?.errors?.secretExist">
+        <span
+          *ngIf="setting.secret!==formGroup.get(this.formKeys.secret)?.value && formGroup.get(this.formKeys.secret)?.errors?.secretExist">
                       该Secret已存在，请重新输入！
         </span>
       <span *ngIf="formGroup.get(this.formKeys.secret)?.errors?.secret">
@@ -52,9 +67,14 @@
         </span>
     </small>
   </thy-form-group>
-
   <thy-form-group-footer>
-    <button [thyButton]="'primary'" thyLoadingText="" class="ml-4" type="submit" [disabled]="formGroup.invalid">
+    <button [thyButton]="'primary'" thyLoadingText="" class="ml-4" type="submit"
+            [disabled]="formGroup.invalid &&
+            !(formGroup.get(this.formKeys.secret)?.errors?.secretExist &&
+            !formGroup.get(this.formKeys.token)?.errors &&
+            !formGroup.get(this.formKeys.name)?.errors&&
+            !formGroup.get(this.formKeys.gitlabUrl)?.errors&&
+            formGroup.get(formKeys.secret)?.value == originSecret)">
       提交
     </button>
   </thy-form-group-footer>

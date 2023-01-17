@@ -6,6 +6,7 @@ import { Assert } from "@yunzhi/utils";
 import { Setting } from "../../../entity/setting";
 import { ThyNotifyService } from "ngx-tethys/notify";
 import { CommonValidators } from "../../validator/CommonValidators";
+import { CommonService } from "../../../service/common.service";
 
 @Component({
   selector: 'app-edit',
@@ -21,9 +22,11 @@ export class EditComponent implements OnInit {
 
   setting = {} as Setting
   init= false;
+  originSecret!: string;
   constructor(private settingService: SettingService,
               private notifyService: ThyNotifyService,
-              private commonValidators: CommonValidators) { }
+              private commonValidators: CommonValidators,
+              private commonService: CommonService) { }
 
   ngOnInit(): void {
     Assert.isInteger(this.settingID, 'id must to int');
@@ -31,6 +34,7 @@ export class EditComponent implements OnInit {
       .subscribe(
         (setting) => {
           this.setting = setting;
+          this.originSecret = setting.secret;
           this.setFormGroup(setting)
         }
       )
@@ -42,7 +46,6 @@ export class EditComponent implements OnInit {
     secret: 'secret',
     name: 'name'
   }
-
   setFormGroup(setting: Setting) {
     this.formGroup.addControl(this.formKeys.gitlabUrl, new FormControl(setting.gitlabUrl, [Validators.required, this.commonValidators.urlValidate]));
     this.formGroup.addControl(this.formKeys.secret, new FormControl(setting.secret, [Validators.required, this.commonValidators.secret], this.commonValidators.secretNotExist()));
@@ -75,6 +78,12 @@ export class EditComponent implements OnInit {
   backWard() {
     this.isFinish.emit(null);
   }
-
+  setRandomString() {
+    const randomToken = this.commonService.randomString(20);
+    this.formGroup.get(this.formKeys.secret)?.setValue(randomToken);
+  }
+  restoreSecret(){
+    this.formGroup.get(this.formKeys.secret)?.setValue(this.originSecret);
+  }
 
 }
