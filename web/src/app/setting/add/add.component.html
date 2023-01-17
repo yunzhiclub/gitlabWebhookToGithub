@@ -43,8 +43,17 @@
   </thy-form-group>
 
   <thy-form-group thyLabelText="Secret" thyLabelRequired>
+    <thy-input-group>
     <input [formControlName]="formKeys.secret" thyInput name="name" required
            placeholder="请输入Secret"/>
+    <ng-template #append>
+      <div class="input-group-text">
+        <button [thyButton]="'primary'" thyLoadingText="" class="ml-4" (click)="setRandomString()" type="button">
+          生成随机Secret
+        </button>
+      </div>
+    </ng-template>
+    </thy-input-group>
     <small class="text-danger"
            *ngIf="formGroup.get(this.formKeys.secret)!.touched && formGroup.get(this.formKeys.secret)!.invalid">
         <span *ngIf="formGroup.get(this.formKeys.secret)?.errors?.secretExist">

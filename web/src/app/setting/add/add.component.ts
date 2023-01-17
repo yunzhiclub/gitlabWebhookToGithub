@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Setting } from "../../../entity/setting";
 import { SettingService } from "../../../service/SettingService";
 import { CommonValidators } from "../../validator/CommonValidators";
+import { CommonService } from "../../../service/common.service";
 
 @Component({
   selector: 'app-add',
@@ -21,7 +22,8 @@ export class AddComponent implements OnInit {
   isFinish = new EventEmitter<Setting | null>();
 
   constructor(private settingService: SettingService,
-              private commonValidators: CommonValidators) {
+              private commonValidators: CommonValidators,
+              private commonService: CommonService) {
   }
 
   ngOnInit(): void {
@@ -53,4 +55,10 @@ export class AddComponent implements OnInit {
       )
   }
 
+  setRandomString() {
+    const randomToken = this.commonService.randomString(20);
+    this.formGroup.get(this.formKeys.secret)?.setValue(randomToken);
+  }
+
 }
+

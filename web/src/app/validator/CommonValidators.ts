@@ -71,11 +71,11 @@ export class CommonValidators {
     const url = control.value as string;
     if (checkUrl(url)) {
       return null;
-    }
-    if (url.length) {
+    } else if (url.length) {
       return {urlValidate: ' '}
+    } else {
+      return null;
     }
-    return null;
   }
 
   nameValidate(control: AbstractControl): ValidationErrors | null {
@@ -90,7 +90,7 @@ export class CommonValidators {
 }
 
 function checkUrl(val: string) {
-  const myReg = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\*\+,;=.]+$/;
+  const myReg = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+[0-9]$/;
   return myReg.test(val);
 }
 
