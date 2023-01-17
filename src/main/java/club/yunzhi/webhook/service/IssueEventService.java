@@ -69,6 +69,7 @@ public class IssueEventService implements EventService {
           break;
       }
     } else {
+      logger.info("action为null, 暂不支持该事件");
       sendMessage = false;
     }
 

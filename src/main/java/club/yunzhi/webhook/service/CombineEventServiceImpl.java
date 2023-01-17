@@ -21,28 +21,31 @@ public class CombineEventServiceImpl implements CombineEventService {
 
 
     @Override
-    public String handleEvent(Queue<GitlabRequest> queue, GitlabRequest gitlabRequest) throws IOException {
-        String handleJson = this.commentAndIssueClose(queue, gitlabRequest);
+    public String handleEvent(Iterator<GitlabRequest> queueIterator, GitlabRequest gitlabRequest) throws IOException {
+        String handleJson = this.commentAndIssueClose(queueIterator, gitlabRequest);
         // 有新的事件 在这里加 handleJson = xxx();
         return handleJson;
     }
 
 
     @Override
-    public String commentAndIssueClose(Queue<GitlabRequest> queue, GitlabRequest gitlabRequest) throws IOException {
+    public String commentAndIssueClose(Iterator<GitlabRequest> queueIterator, GitlabRequest gitlabRequest) throws IOException {
         String eventName = gitlabRequest.getEventName();
         String json = gitlabRequest.getJson();
 
         if (Objects.equals(eventName, GitlabEvent.noteHook)) {
-            Iterator<GitlabRequest> iterator = queue.iterator();
-            GitlabRequest nextRequest = iterator.next();
-            // 若下一个事件为不为issueClose事件，或不为同一issue 返回null
-            if(!Objects.equals(nextRequest.getEventName(), GitlabEvent.issueHook) || !this.judgeIsIssueClose(json)
-                || !this.judgeIsSameIssue(nextRequest.getJson(), json)) {
-                return null;
+            if (!queueIterator.hasNext()) {
+                return json;
+            }
+            GitlabRequest nextRequest = queueIterator.next();
+            // 若下一个事件为不为issueClose事件，或不为同一issue 返回原json
+            if (!Objects.equals(nextRequest.getEventName(), GitlabEvent.issueHook) || !this.judgeIsIssueClose(nextRequest.getJson())
+                    || !this.judgeIsSameIssue(nextRequest.getJson(), json)) {
+                return json;
             }
             // 出栈，进行事件合并，不发送issueClose事件
-            iterator.remove();
+            queueIterator.remove();
+            logger.info("进行事件合并");
             return this.setIssueTittleClose(json);
         }
         // 若不进行事件合并 返回原json
@@ -74,15 +77,16 @@ public class CombineEventServiceImpl implements CombineEventService {
 
     /**
      * 判断两个事件是否为同一issue事件
-     * @param GitlabIssueRequestJson  issue事件json
-     * @param GitlabIssueCommentJson  comment事件json
+     *
+     * @param GitlabIssueRequestJson issue事件json
+     * @param GitlabIssueCommentJson comment事件json
      * @return true 是 false 不是
      */
     private Boolean judgeIsSameIssue(String GitlabIssueRequestJson, String GitlabIssueCommentJson) throws IOException {
         GitlabIssueRequest gitlabIssueRequest = EventService.covertJson(GitlabIssueRequestJson, GitlabIssueRequest.class);
         GitLabCommentRequest gitLabCommentRequest = EventService.covertJson(GitlabIssueCommentJson, GitLabCommentRequest.class);
 
-        if(gitLabCommentRequest.getIssue() == null) {
+        if (gitLabCommentRequest.getIssue() == null) {
             return false;
         }
         return Objects.equals(gitlabIssueRequest.getObject_attributes().getIid(), gitLabCommentRequest.getIssue().getIid());

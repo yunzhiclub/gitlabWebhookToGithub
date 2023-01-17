@@ -2,9 +2,13 @@ package club.yunzhi.webhook.schedule;
 
 import club.yunzhi.webhook.entities.GitlabRequest;
 import club.yunzhi.webhook.service.*;
+import club.yunzhi.webhook.util.ResponseUtil;
+import club.yunzhi.webhook.vo.ResponseVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,9 +25,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Service
 public class NotifySchedule {
-    // 间隔5s发送一次
-    private final Integer INTERVAL = 5000;
-
     // 当最后一次请求在当前时间2s内时, 不进行处理
     private final Integer NOT_HANDLE_TIME = 2000;
 
@@ -33,10 +34,6 @@ public class NotifySchedule {
      */
     private final Map<String, Queue<GitlabRequest>> map = new ConcurrentHashMap<>();
 
-    /**
-     * 处理队列
-     */
-    private final Queue<GitlabRequest> queue = new LinkedBlockingQueue<>();
     private static final Logger logger = LoggerFactory.getLogger(GitLabNotifyServiceImpl.class);
 
     private final CombineEventService combineEventService;
@@ -54,12 +51,16 @@ public class NotifySchedule {
         this.settingService = settingService;
     }
 
-
-    @Scheduled(fixedRate = INTERVAL)
-    private void sendRequest() throws IOException {
-        // 对每个项目的请求进行处理
+    // 间隔5s处理项目请求
+    @Scheduled(fixedRate = 5000)
+    private void sendRequest() {
+        // 对每个项目的请求队列进行处理
         this.map.forEach((key, value) -> {
-
+            try {
+                this.handleQueue(value);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -80,16 +81,18 @@ public class NotifySchedule {
             GitlabRequest gitlabRequest = iterator.next();
             // 是否继续进行处理
             if (IsNotHandle(gitlabRequest.getReceivedTime())) {
+                logger.info("最后一次请求在当前时间在2s内，不进行处理");
                 break;
             }
             // 出栈
             iterator.remove();
-            String resultJson = "";
+            String resultJson;
             // 获取处理合并事件后的json
-            resultJson = this.combineEventService.handleEvent(this.queue, gitlabRequest);
+            resultJson = this.combineEventService.handleEvent(iterator, gitlabRequest);
 
             if (resultJson == null) {
                 logger.info("事件合并，不发送该事件");
+                return;
             }
             this.gitLabNotifyService.handleEventData(resultJson, gitlabRequest.getEventName(), gitlabRequest.getSecret());
         }
@@ -100,22 +103,23 @@ public class NotifySchedule {
     /**
      * 将请求添加到hashMap中进行处理
      */
-    @Async
-    public void putIntoMap(String json, String eventName, String secret) {
+    public ResponseEntity<ResponseVo> putIntoMap(String json, String eventName, String secret) {
         Assert.notNull(json, "json不能为空");
         Assert.notNull(eventName, "eventName不能为空");
-        Assert.notNull(secret, "secret不能为空");
-
         String accessToken = EventService.getAccessToken(secret, settingService);
 
+        if(Objects.equals(accessToken, "")) {
+            ResponseVo body = ResponseUtil.error(HttpStatus.BAD_REQUEST,"该请求的secret不存在于数据库中");
+            return  new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        }
         // 找到对应项目的请求队列
         Queue<GitlabRequest> toAddQueue = this.map.get(accessToken);
         // 若该项目的请求队列不存在，新增队列
         if (toAddQueue == null) {
             toAddQueue = new LinkedBlockingQueue<>();
-            this.map.put(accessToken, queue);
-        }
+            this.map.put(accessToken, toAddQueue);
 
+        }
         GitlabRequest gitlabRequest = new GitlabRequest();
         gitlabRequest.setJson(json);
         gitlabRequest.setEventName(eventName);
@@ -123,15 +127,17 @@ public class NotifySchedule {
         gitlabRequest.setReceivedTime(new Timestamp(System.currentTimeMillis()));
         // 添加进队列
         toAddQueue.offer(gitlabRequest);
+
+        return new ResponseEntity<>(ResponseUtil.ok(), HttpStatus.OK);
     }
 
     /**
      * 是否继续处理
-     * 当最后一次请求在当前时间 NOT_HANDLE_TIME 内时, 不进行处理
+     * 当最后一次请求在当前时间 2s 内时, 不进行处理
      *
      * @return true 不处理 false 处理
      */
     private Boolean IsNotHandle(Timestamp receivedTime) {
-        return System.currentTimeMillis() - NOT_HANDLE_TIME < receivedTime.getTime();
+        return System.currentTimeMillis()  < receivedTime.getTime() + NOT_HANDLE_TIME;
     }
 }

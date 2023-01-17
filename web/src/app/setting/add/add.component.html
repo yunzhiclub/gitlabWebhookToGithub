@@ -9,11 +9,13 @@
       class="px-md-5 p-3  mt-6 mb-2 col-8">
   <thy-form-group thyLabelText="GitlabUrl" thyLabelRequired>
     <input [formControlName]="formKeys.gitlabUrl" thyInput name="name" required
-           placeholder="请输入GitlabUrl,如:http://gitlab.mengyunzhi.com:2448"/>
+           placeholder="请输入GitlabUrl"/>
+    <small class="mute">如:http://gitlab.xxx.com:xxx</small>
   </thy-form-group>
   <thy-form-group thyLabelText="GithubToken" thyLabelRequired>
     <input [formControlName]="formKeys.token" thyInput name="name" required
            placeholder="请输入GithubToken"/>
+    <small class="mute">钉钉机器人的token</small>
   </thy-form-group>
   <thy-form-group thyLabelText="Secret" thyLabelRequired>
     <input [formControlName]="formKeys.secret" thyInput name="name" required

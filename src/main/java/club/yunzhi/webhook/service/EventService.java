@@ -2,6 +2,8 @@ package club.yunzhi.webhook.service;
 
 import club.yunzhi.webhook.request.GitlabIssueRequest;
 import club.yunzhi.webhook.util.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -10,6 +12,8 @@ import java.io.IOException;
  * 事件接口
  */
 public interface EventService {
+
+  static final Logger logger = LoggerFactory.getLogger(GitLabNotifyServiceImpl.class);
 
 
   String getEventKey();

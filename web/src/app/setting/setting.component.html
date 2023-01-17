@@ -24,19 +24,17 @@
 
         </div>
       </thy-content-section>
-      <div class="mt-2 d-flex justify-content-between" >
+      <thy-empty *ngIf="!pageData.content?.length" thyMessage="数据为空, 请添加" [thyTopAuto]="true" class="empty-container bg-content"></thy-empty>
+
+      <div class="mt-2 d-flex justify-content-between"*ngIf="pageData.content?.length" >
         <table class="table table-striped mt-8 ">
-          <thead>
           <tr class="table-primary flex-row-reverse">
             <th>GitlabUrl</th>
             <th>GithubToken</th>
             <th>Secret</th>
             <th>操作</th>
           </tr>
-          </thead>
           <tbody>
-          <thy-empty *ngIf="pageData.content?.length === 0" thyMessage="数据为空, 请添加" [thyTopAuto]="true" class="empty-container bg-content"></thy-empty>
-
           <tr *ngFor="let setting of pageData.content ; index as i" height="100px">
             <td>{{setting.gitlabUrl}}</td>
             <td>{{setting.token}}</td>
@@ -59,7 +57,7 @@
 
       </div>
       <thy-pagination
-        *ngIf="pageData.content?.length !== 0"
+        *ngIf="pageData.content?.length"
                       [(thyPageIndex)]="pageData.number"
                       [thyPageSize]="pageData.size"
                       [thyTotal]="pageData.totalElements"
