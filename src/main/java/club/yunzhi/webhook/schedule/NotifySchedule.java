@@ -25,14 +25,14 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Service
 public class NotifySchedule {
-    // 当最后一次请求在当前时间2s内时, 不进行处理
-    private final Integer NOT_HANDLE_TIME = 2000;
+    // 当最后一次请求在当前时间10s内时, 不进行处理
+    private final Integer NOT_HANDLE_TIME = 10000;
 
     /**
      * key： access_token, github钉钉机器人的token
-     * value 该项目待处理的GitlabRequest请求
+     * value 该项目待处理的GitlabRequest请求,类型为双端队列
      */
-    private final Map<String, Queue<GitlabRequest>> map = new ConcurrentHashMap<>();
+    private final Map<String, Deque<GitlabRequest>> map = new ConcurrentHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(GitLabNotifyServiceImpl.class);
 
@@ -51,8 +51,8 @@ public class NotifySchedule {
         this.settingService = settingService;
     }
 
-    // 间隔5s处理项目请求
-    @Scheduled(fixedRate = 5000)
+    // 间隔20s处理项目请求
+    @Scheduled(fixedRate = 20000)
     private void sendRequest() {
         // 对每个项目的请求队列进行处理
         this.map.forEach((key, value) -> {
@@ -66,24 +66,27 @@ public class NotifySchedule {
 
     /**
      * 处理队列中的请求
-     * @param queue 请求队列
+     * @param deque 请求队列
      */
-    public void handleQueue(Queue<GitlabRequest> queue) throws IOException {
-        int size = queue.size();
+    public void handleQueue(Deque<GitlabRequest> deque) throws IOException {
+        int size = deque.size();
         // 如果队列没数据,表示这段时间没有请求,直接返回
         if (size == 0) {
             return;
         }
-        Iterator<GitlabRequest> iterator = queue.iterator();
+        // 获取队尾元素
+        GitlabRequest queueLast = deque.getLast();
+        // 是否继续进行处理
+        if (IsNotHandle(queueLast.getReceivedTime())) {
+            logger.info("最后一次请求在当前时间在10s内，不进行处理");
+            return;
+        }
+
+        Iterator<GitlabRequest> iterator = deque.iterator();
 
         while (iterator.hasNext()) {
             // 获取头部元素
             GitlabRequest gitlabRequest = iterator.next();
-            // 是否继续进行处理
-            if (IsNotHandle(gitlabRequest.getReceivedTime())) {
-                logger.info("最后一次请求在当前时间在2s内，不进行处理");
-                break;
-            }
             // 出栈
             iterator.remove();
             String resultJson;
@@ -112,14 +115,9 @@ public class NotifySchedule {
             ResponseVo body = ResponseUtil.error(HttpStatus.BAD_REQUEST,"该请求的secret不存在于数据库中");
             return  new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
         }
-        // 找到对应项目的请求队列
-        Queue<GitlabRequest> toAddQueue = this.map.get(accessToken);
-        // 若该项目的请求队列不存在，新增队列
-        if (toAddQueue == null) {
-            toAddQueue = new LinkedBlockingQueue<>();
-            this.map.put(accessToken, toAddQueue);
+        // 找到对应项目的请求队列 若该项目的请求队列不存在，新增队列
+        Deque<GitlabRequest> toAddQueue = this.map.computeIfAbsent(accessToken, k -> new LinkedList<>());
 
-        }
         GitlabRequest gitlabRequest = new GitlabRequest();
         gitlabRequest.setJson(json);
         gitlabRequest.setEventName(eventName);
@@ -133,7 +131,7 @@ public class NotifySchedule {
 
     /**
      * 是否继续处理
-     * 当最后一次请求在当前时间 2s 内时, 不进行处理
+     * 当最后一次请求在当前时间 10s 内时, 不进行处理
      *
      * @return true 不处理 false 处理
      */

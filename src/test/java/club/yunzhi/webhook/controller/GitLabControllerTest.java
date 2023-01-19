@@ -1,7 +1,5 @@
 package club.yunzhi.webhook.controller;
 
-import club.yunzhi.webhook.entities.GitlabRequest;
-import club.yunzhi.webhook.service.GitLabNotifyServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -11,8 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @RunWith(SpringRunner.class)
@@ -26,9 +23,7 @@ public class GitLabControllerTest {
 
     @Test
     public void pushHook() throws IOException {
-
     }
-
 
     // 测试数据 payload 复制于下面
     String json = "";
